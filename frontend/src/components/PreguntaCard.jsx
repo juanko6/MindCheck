@@ -13,8 +13,8 @@ export default function PreguntaCard({ pregunta, opciones, selectedOption, setSe
 
       <div className="flex flex-col items-center gap-4">
         {opciones.map((opcion, index) => {
-          const isSelected = selectedOption === opcion;
-          const isAnswered = !!selectedOption;
+          const isSelected = selectedOption === index;
+          const isAnswered = !!selectedOption !== null;
           const isDisabled = isAnswered && !isSelected; // ✅ Solo deshabilita si ya se respondió
 
           return (
@@ -33,7 +33,7 @@ export default function PreguntaCard({ pregunta, opciones, selectedOption, setSe
                 name="option"
                 value={opcion}
                 checked={isSelected}
-                onChange={(e) => setSelectedOption(e.target.value)}
+                onChange={(e) => setSelectedOption(index)}
                 className="hidden"
               />
               <span className="text-center">

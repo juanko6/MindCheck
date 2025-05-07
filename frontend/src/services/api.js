@@ -48,6 +48,14 @@ export const generateQuestionsFromPdf = async (pdfUrl, paginas, numeroPreguntas,
       numeroPreguntas,
       nivelDificultad
     });
-    return response.data;
+    
+  let data = response.data;
+
+  // ✅ Asegurarse de que no venga doblemente anidado
+  if (data?.preguntas?.preguntas) {
+    data = { preguntas: data.preguntas.preguntas };
+  }
+
+  return data;
   };
   

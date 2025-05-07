@@ -31,13 +31,15 @@ Formato:
 "opcion2": "Segunda opción",
 "opcion3": "Tercera opción",
 "opcion4": "Cuarta opción",
-"respuesta": "Texto exacto de la opción correcta"
+"respuesta": índice (0 a 3)
 }}
 
 IMPORTANTE:
+- En la respuesta debes de poner el indice de la opcion correcta
 - SOLO devuelve el array JSON.
 - No pongas ``` ni comentarios.
 - No pongas texto adicional.
+
 
 Texto:
 {texto}
@@ -54,18 +56,26 @@ Texto:
 
     preguntas_json = response.choices[0].message.content
 
+    print("🔍 Raw JSON recibido de OpenAI:")
+    print(preguntas_json)
+
     if not preguntas_json or preguntas_json.strip() == "":
         print("⚠️ OpenAI no devolvió contenido.")
         return {"preguntas": []}
 
     try:
         preguntas = json.loads(preguntas_json)
+
+        # ✅ Desanidar si ya vino doble
+        if isinstance(preguntas, dict) and "preguntas" in preguntas:
+            preguntas = preguntas["preguntas"]
+
     except json.JSONDecodeError as e:
         print("Error al parsear JSON:", e)
         print("Contenido recibido:", preguntas_json)
         preguntas = []
 
-    if isinstance(preguntas, dict) and "preguntas" in preguntas:
-        return preguntas
-    else:
-        return {"preguntas": preguntas}
+    resultado = { "preguntas": preguntas }
+    print("✅ Resultado final enviado al frontend:")
+    print(json.dumps(resultado, indent=2, ensure_ascii=False))
+    return resultado

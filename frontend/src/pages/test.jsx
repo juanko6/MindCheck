@@ -5,12 +5,12 @@ import ResultCard from "@/components/ResultCard";
 import { useTheme } from "@/context/ThemeContext";
 import ThemeToggle from "@/common/ThemeToggle";
 import { getExplanation } from "@/services/api";
-import { generateQuestionsFromPdf } from "@/services/api";
+
 
 export default function TestPage() {
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedOption, setSelectedOption] = useState("");
+  const [selectedOption, setSelectedOption] = useState(null);
   const [feedback, setFeedback] = useState("");
   const [isCorrect, setIsCorrect] = useState(null);
   const [vidas, setVidas] = useState(5);
@@ -20,85 +20,47 @@ export default function TestPage() {
   const { darkMode } = useTheme();
 
   useEffect(() => {
-    let ejecutado = false;
-    const fetchQuestions = async () => {
-      if (ejecutado) return;
-      ejecutado = true;
-      const storedQuestions = localStorage.getItem("questions");
+    try {
+      const storedRaw = localStorage.getItem("questions");
       const storedVidas = localStorage.getItem("vidas");
       const storedIndex = localStorage.getItem("currentIndex");
   
-      if (storedQuestions) {
-        try {
-          const parsed = JSON.parse(storedQuestions);
-          if (!parsed.preguntas || parsed.preguntas.length === 0) {
-            throw new Error("No se generaron preguntas.");
-          }
-          setQuestions(parsed.preguntas);
-          setVidas(storedVidas ? parseInt(storedVidas) : 5);
-          setCurrentIndex(storedIndex ? parseInt(storedIndex) : 0);
-          setLoading(false);
-          return;
-        } catch (error) {
-          console.error("Error cargando preguntas del localStorage:", error);
-          localStorage.removeItem("questions"); // limpiar si está corrupto
-        }
-      }
-  
-      // Si no había preguntas guardadas, generarlas desde cero
-      const pdfUrl = localStorage.getItem("pdfUrl");
-      const paginas = localStorage.getItem("paginasSeleccionadas");
-      const numeroPreguntas = localStorage.getItem("numeroPreguntas");
-      const nivelDificultad = localStorage.getItem("nivelDificultad");
-  
-      if (!pdfUrl || !paginas || !numeroPreguntas || !nivelDificultad) {
-        alert("Faltan datos del test. Redirigiendo al inicio.");
-        router.push("/");
-        return;
-      }
-  
-      try {
-        const result = await generateQuestionsFromPdf(
-          pdfUrl,
-          paginas,
-          parseInt(numeroPreguntas),
-          nivelDificultad
-        );
+      if (!storedRaw) throw new Error("No se encontró el objeto 'questions'");
+      console.log("📦 RAW localStorage.questions:", localStorage.getItem("questions"));
 
-        console.log("🧠 Resultado recibido de la IA:", result);
-  
-        if (!result.preguntas || result.preguntas.length === 0) {
-          throw new Error("No se generaron preguntas.");
-        }
-  
-        localStorage.setItem("questions", JSON.stringify(result));
-        localStorage.setItem("vidas", "5");
-        localStorage.setItem("currentIndex", "0");
-  
-        setQuestions(result.preguntas.preguntas);
-        setVidas(5);
-        setCurrentIndex(0);
-      } catch (error) {
-        console.error("Error generando preguntas:", error);
-        alert("No se pudieron generar preguntas. Redirigiendo...");
-        router.push("/");
-      } finally {
-        setLoading(false);
+      const parsed = JSON.parse(storedRaw);
+      const preguntasArray = parsed?.preguntas;
+
+      if (!Array.isArray(preguntasArray)) {
+        throw new Error("El campo 'preguntas' no es un array válido.");
       }
-    };
   
-    fetchQuestions();
+      console.log("✅ Preguntas parseadas:", preguntasArray);
+  
+      setQuestions(preguntasArray);
+      setVidas(storedVidas ? parseInt(storedVidas) : 5);
+      setCurrentIndex(storedIndex ? parseInt(storedIndex) : 0);
+      setLoading(false);
+    } catch (error) {
+      console.error("❌ Error al cargar preguntas:", error.message);
+      alert("No se encontraron preguntas. Redirigiendo al inicio...");
+      router.push("/");
+    }
   }, []);
+  
 
   const handleSendAnswer = async () => {
-    if (!selectedOption) return;
+    console.log("Selected option:", selectedOption);
+    if (selectedOption === null || selectedOption === undefined) return;
 
     const currentQuestion = questions[currentIndex];
-    if (selectedOption.trim() === currentQuestion.respuesta.trim()) {
+    if (selectedOption === currentQuestion.respuesta) {
       setFeedback("✅ ¡Correcto!");
       setIsCorrect(true);
     } else {
-      const explanation = await getExplanation(currentQuestion.pregunta, currentQuestion.respuesta);
+      const explanation = await getExplanation(currentQuestion.pregunta, 
+        [currentQuestion.opcion1, currentQuestion.opcion2, currentQuestion.opcion3, currentQuestion.opcion4][currentQuestion.respuesta]
+      );
       setFeedback(`❌ Incorrecto. ${explanation}`);
       setIsCorrect(false);
       setVidas(prev => {
@@ -209,7 +171,8 @@ export default function TestPage() {
         onClick={handleSendAnswer}
         className={`mt-6 w-full max-w-xl font-bold py-2 px-4 rounded disabled:opacity-50
           ${darkMode ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-blue-500 hover:bg-blue-700 text-white"}`}
-        disabled={!selectedOption}
+          disabled={selectedOption === null}
+
       >
         Enviar Respuesta
       </button>
