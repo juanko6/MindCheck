@@ -7,11 +7,12 @@ app = FastAPI()
 # Configuración de CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Luego puedes poner dominios específicos
+    allow_origins=["http://localhost:3000", "https://mi-frontend.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Registrar rutas
 app.include_router(pdf_routes.router)

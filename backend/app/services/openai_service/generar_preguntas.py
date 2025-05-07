@@ -65,4 +65,7 @@ Texto:
         print("Contenido recibido:", preguntas_json)
         preguntas = []
 
-    return {"preguntas": preguntas}
+    if isinstance(preguntas, dict) and "preguntas" in preguntas:
+        return preguntas
+    else:
+        return {"preguntas": preguntas}

@@ -1,13 +1,12 @@
-// src/components/DragAndDropUploader.jsx
 import { useState } from 'react';
-import axios from 'axios';
 import { useTheme } from "@/context/ThemeContext";
+import { uploadPDF } from "@/services/api";
 
 export default function DragAndDropUploader({ onUploadSuccess, numeroPreguntas, nivelDificultad }) {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadSuccess, setUploadSuccess] = useState(false); // 👈 Nuevo estado
+  const [uploadSuccess, setUploadSuccess] = useState(false);
   const { darkMode } = useTheme();
 
   const handleDrop = (event) => {
@@ -27,41 +26,28 @@ export default function DragAndDropUploader({ onUploadSuccess, numeroPreguntas, 
 
   const handleUpload = async () => {
     if (!file) return;
-  
+
     setUploading(true);
     setUploadProgress(0);
     setUploadSuccess(false);
-  
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('numero_preguntas', numeroPreguntas);
-    formData.append('nivel_dificultad', nivelDificultad);
-  
+
     try {
-      const response = await axios.post('http://localhost:8000/upload-pdf', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setUploadProgress(percentCompleted);
-        },
+      const data = await uploadPDF(file, numeroPreguntas, nivelDificultad, (progressEvent) => {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        setUploadProgress(percentCompleted);
       });
-  
-      if (response.status === 200) {
-        setUploadSuccess(true);
-        setTimeout(() => {
-          onUploadSuccess(response.data);
-        }, 1500);
-      }
+
+      setUploadSuccess(true);
+      setTimeout(() => {
+        onUploadSuccess(data.pdfUrl);
+      }, 1500);
     } catch (error) {
       console.error("Error al subir el PDF:", error);
-  
-      // 👉 Controlar el error con alert o modal personalizado
       alert("❌ Error subiendo el archivo. Puede ser demasiado grande o hubo un problema de red.\n\nIntenta con un PDF más pequeño.");
     } finally {
       setUploading(false);
     }
   };
-  
 
   return (
     <div
@@ -119,15 +105,12 @@ export default function DragAndDropUploader({ onUploadSuccess, numeroPreguntas, 
           )}
         </button>
 
-
         {uploadSuccess && (
-            <div className="mt-4 text-center text-green-500 font-bold animate-pulse">
+          <div className="mt-4 text-center text-green-500 font-bold animate-pulse">
             Generando preguntas... 🧠
-            </div>
+          </div>
         )}
 
-
-        {/* Barra de progreso */}
         {uploading && (
           <div className="w-full bg-gray-300 rounded-full h-2 mt-4">
             <div

@@ -1,86 +1,70 @@
 import { useState } from 'react';
-import DragAndDropUploader from '../components/DragAndDropUploader';
 import { useRouter } from 'next/router';
+import DragAndDropUploader from '@/components/DragAndDropUploader';
 import { useTheme } from "@/context/ThemeContext";
+import ThemeToggle from '@/common/ThemeToggle';
 
 export default function HomePage() {
-  const [questions, setQuestions] = useState([]);
   const [numeroPreguntas, setNumeroPreguntas] = useState(5);
   const [nivelDificultad, setNivelDificultad] = useState("Modo Relax");
   const router = useRouter();
-  const { darkMode, toggleDarkMode } = useTheme();
+  const { darkMode } = useTheme();
 
-  const handleUploadSuccess = (preguntasGeneradas) => {
-    localStorage.setItem('questions', JSON.stringify(preguntasGeneradas));
-    router.push('/test');
+  const handleUploadSuccess = (pdfUrl) => {
+    localStorage.setItem('pdfUrl', pdfUrl);
+    localStorage.setItem('numeroPreguntas', numeroPreguntas.toString());
+    localStorage.setItem('nivelDificultad', nivelDificultad);
+    localStorage.setItem('vidas', '5');
+    localStorage.setItem('currentIndex', '0');
+    router.push('/select-pages')
+
   };
 
   return (
     <div className={`min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-500
       ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
 
-      {/* Botón modo oscuro/claro */}
-      <button
-        onClick={toggleDarkMode}
-        className={`absolute top-4 right-4 font-bold py-2 px-4 rounded transition-colors duration-500
-          ${darkMode ? "bg-yellow-400 hover:bg-yellow-500 text-black" : "bg-purple-600 hover:bg-purple-800 text-white"}`}
-      >
-        {darkMode ? "Modo Claro ☀️" : "Modo Oscuro 🌙"}
-      </button>
+      <ThemeToggle />
 
       <h1 className="text-4xl font-bold mb-2 text-center">MindCheck PDF 📚</h1>
       <h2 className="text-2xl font-semibold mb-8 text-center">¡Pon a prueba tu mente! 🧠</h2>
 
-      {/* Cartas de Número de Preguntas */}
+      {/* Selector de número de preguntas */}
       <div className="mb-8 w-full max-w-2xl">
         <h3 className="text-xl font-bold mb-4 text-center">¿Cuántas preguntas quieres?</h3>
-        <div className="grid grid-cols-2 gap-4">
-          {[5, 10, 15, 20].map((n) => (
-            <div
-              key={n}
-              onClick={() => setNumeroPreguntas(n)}
-              className={`p-6 rounded-lg text-center font-semibold border-2 cursor-pointer transition-all duration-300
-                ${numeroPreguntas === n 
-                  ? "bg-blue-500 text-white border-blue-600 scale-105" 
-                  : "border-gray-400 hover:border-blue-400 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-blue-400 dark:hover:bg-gray-700"
-                }`}
-            >
-              {n} Preguntas 📚
-            </div>
-          ))}
+        <div className="flex flex-col items-center">
+          <input
+            type="range"
+            min="1"
+            max="30"
+            value={numeroPreguntas}
+            onChange={(e) => setNumeroPreguntas(Number(e.target.value))}
+            className="w-3/4 h-2 bg-blue-200 rounded-full appearance-none cursor-pointer"
+          />
+          <p className="mt-2 text-lg font-semibold">{numeroPreguntas} Preguntas 📚</p>
         </div>
       </div>
 
-      {/* Cartas de Nivel de Dificultad */}
+      {/* Selector de nivel de dificultad */}
       <div className="mb-8 w-full max-w-2xl">
         <h3 className="text-xl font-bold mb-4 text-center">¿Nivel de dificultad?</h3>
-        <div className="grid grid-cols-2 gap-4">
-          {[
-            { nivel: "Modo Relax", emoji: "🧘‍♂️" },
-            { nivel: "Modo Café", emoji: "☕" },
-            { nivel: "Modo Insano", emoji: "👹" },
-            { nivel: "Modo Dios", emoji: "📚👑" }
-          ].map(({ nivel, emoji }) => (
-            <div
-              key={nivel}
-              onClick={() => setNivelDificultad(nivel)}
-              className={`p-6 rounded-lg text-center font-semibold border-2 cursor-pointer transition-all duration-300
-                ${nivelDificultad === nivel 
-                  ? "bg-green-500 text-white border-green-600 scale-105" 
-                  : "border-gray-400 hover:border-green-400 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-green-400 dark:hover:bg-gray-700"
-                }`}
-            >
-              {nivel} {emoji}
-            </div>
-          ))}
+        <div className="flex justify-center">
+          <select
+            value={nivelDificultad}
+            onChange={(e) => setNivelDificultad(e.target.value)}
+            className="px-4 py-2 text-lg font-semibold border-2 rounded-lg bg-gray-50 dark:bg-gray-800 dark:text-white border-gray-400 dark:border-gray-600 hover:border-green-400 dark:hover:border-green-400 focus:ring-2 focus:ring-green-400"
+          >
+            <option value="Modo Relax">Modo Relax 🧘‍♂️</option>
+            <option value="Modo Café">Modo Café ☕</option>
+            <option value="Modo Insano">Modo Insano 👹</option>
+            <option value="Modo Dios">Modo Dios 📚👑</option>
+          </select>
         </div>
       </div>
 
-      {/* Drag & Drop */}
+      {/* Carga del PDF */}
       <DragAndDropUploader 
         onUploadSuccess={handleUploadSuccess} 
-        numeroPreguntas={numeroPreguntas}
-        nivelDificultad={nivelDificultad}
       />
     </div>
   );
