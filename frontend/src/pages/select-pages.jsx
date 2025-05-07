@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTheme } from "@/context/ThemeContext";
 import ThemeToggle from '@/common/ThemeToggle';
-import { Worker, Viewer } from '@react-pdf-viewer/core';
-import '@react-pdf-viewer/core/lib/styles/index.css';
-import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
+
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf-worker/pdf.worker.min.mjs';
 
 export default function SelectPagesStep() {
   const router = useRouter();
@@ -13,7 +15,9 @@ export default function SelectPagesStep() {
   const [pdfUrl, setPdfUrl] = useState('');
   const [numeroPreguntas, setNumeroPreguntas] = useState(0);
   const [nivelDificultad, setNivelDificultad] = useState('');
-  const [paginasSeleccionadas, setPaginasSeleccionadas] = useState(''); // string para simplificar por ahora
+  const [numPages, setNumPages] = useState(null);
+  const [paginasSeleccionadas, setPaginasSeleccionadas] = useState([]);
+  const [todoSeleccionado, setTodoSeleccionado] = useState(false);
 
   useEffect(() => {
     const pdf = localStorage.getItem('pdfUrl');
@@ -31,13 +35,34 @@ export default function SelectPagesStep() {
     setNivelDificultad(dificultad);
   }, []);
 
+  const handleDocumentLoadSuccess = ({ numPages }) => {
+    setNumPages(numPages);
+  };
+
+  const togglePageSelection = (pageNum) => {
+    setPaginasSeleccionadas((prev) =>
+      prev.includes(pageNum)
+        ? prev.filter((n) => n !== pageNum)
+        : [...prev, pageNum]
+    );
+  };
+
+  const handleSeleccionarTodo = () => {
+    if (todoSeleccionado) {
+      setPaginasSeleccionadas([]);
+    } else {
+      setPaginasSeleccionadas(Array.from({ length: numPages }, (_, i) => i + 1));
+    }
+    setTodoSeleccionado(!todoSeleccionado);
+  };
+
   const handleContinuar = () => {
-    if (!paginasSeleccionadas) {
+    if (paginasSeleccionadas.length === 0) {
       alert("Selecciona al menos una página para continuar.");
       return;
     }
 
-    localStorage.setItem('paginasSeleccionadas', paginasSeleccionadas);
+    localStorage.setItem('paginasSeleccionadas', paginasSeleccionadas.join(','));
     router.push('/test');
   };
 
@@ -53,23 +78,45 @@ export default function SelectPagesStep() {
       <p className="mb-1"><strong>Número de preguntas:</strong> {numeroPreguntas}</p>
       <p className="mb-4"><strong>Dificultad:</strong> {nivelDificultad}</p>
 
+      {numPages && (
+        <button
+          onClick={handleSeleccionarTodo}
+          className="mb-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
+        >
+          {todoSeleccionado ? 'Deseleccionar todo' : 'Seleccionar todo'}
+        </button>
+      )}
 
-      <div className="w-full max-w-4xl h-[500px] border-2 rounded shadow mb-6">
-        <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`}>
-          <Viewer fileUrl={`http://localhost:8000${pdfUrl}`} />
-        </Worker>
-      </div>
+      <div className="w-full overflow-x-auto mb-6 mb-12 px-2">
+        <div className="flex flex-nowrap gap-6 p-4 border rounded-lg bg-white dark:bg-gray-800 w-fit mx-auto shadow-md">
+      {pdfUrl && (
+          <Document
+            file={`http://localhost:8000${pdfUrl}`}
+            onLoadSuccess={handleDocumentLoadSuccess}
+          >
+            <div className="flex flex-nowrap flex-row gap-4 p-2 border rounded bg-white dark:bg-gray-800 w-fit">
+              {Array.from({ length: numPages }, (_, index) => (
+                <div key={index} className="flex flex-col items-center min-w-[120px]">
+                  <Page
+                    pageNumber={index + 1}
+                    width={100}
+                    className="border rounded shadow"
+                  />
+                  <label className="mt-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={paginasSeleccionadas.includes(index + 1)}
+                      onChange={() => togglePageSelection(index + 1)}
+                    />
+                    Página {index + 1}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </Document>
+        )}
 
-      {/* Simulación de selección de páginas */}
-      <div className="w-full max-w-md mb-6">
-        <label className="block mb-2 font-semibold">Ingresa las páginas que deseas procesar (ej: 1,2,4):</label>
-        <input
-          type="text"
-          value={paginasSeleccionadas}
-          onChange={(e) => setPaginasSeleccionadas(e.target.value)}
-          className="w-full px-4 py-2 rounded border dark:bg-gray-800 dark:text-white"
-          placeholder="Ej: 1,2,5-7"
-        />
+        </div>
       </div>
 
       <button

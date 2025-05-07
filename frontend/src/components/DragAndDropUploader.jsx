@@ -107,7 +107,7 @@ export default function DragAndDropUploader({ onUploadSuccess, numeroPreguntas, 
 
         {uploadSuccess && (
           <div className="mt-4 text-center text-green-500 font-bold animate-pulse">
-            Generando preguntas... 🧠
+            Subiendo conocimiento... 🧠
           </div>
         )}
 
