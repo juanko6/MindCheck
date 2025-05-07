@@ -15,7 +15,8 @@ export default function PreguntaCard({ pregunta, opciones, selectedOption, setSe
         {opciones.map((opcion, index) => {
           const isSelected = selectedOption === index;
           const isAnswered = !!selectedOption !== null;
-          const isDisabled = isAnswered && !isSelected; // ✅ Solo deshabilita si ya se respondió
+          const isDisabled = isAnswered && !isSelected; // ✅ Solo deshabilita si ya se respondió 
+          //TODO:aun se puede enviar la pregunta sin opcion seleccionada
 
           return (
             <label
