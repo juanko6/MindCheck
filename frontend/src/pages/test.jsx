@@ -130,20 +130,26 @@ export default function TestPage() {
       );
       setFeedback(`❌ Incorrecto. ${explanation}`);
       setIsCorrect(false);
+    }
+    setShowModal(true);
+  };
+
+  const handleNextQuestion = () => {
+    setShowModal(false);
+  
+    // Solo si fue incorrecta, reducimos vida
+    if (!isCorrect) {
       setVidas(prev => {
         const newVidas = prev - 1;
         localStorage.setItem("vidas", newVidas.toString());
         return newVidas;
       });
     }
-    setShowModal(true);
-  };
-
-  const handleNextQuestion = () => {
+  
+    // Si aún hay preguntas por responder y vidas, avanzamos
     setSelectedOption("");
     setFeedback("");
     setIsCorrect(null);
-    setShowModal(false);
     setCurrentIndex(prev => {
       const newIndex = prev + 1;
       localStorage.setItem("currentIndex", newIndex.toString());
