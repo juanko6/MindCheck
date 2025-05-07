@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTheme } from "@/context/ThemeContext";
 import ThemeToggle from '@/common/ThemeToggle';
+import { Worker, Viewer } from '@react-pdf-viewer/core';
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 
 export default function SelectPagesStep() {
   const router = useRouter();
@@ -49,6 +52,13 @@ export default function SelectPagesStep() {
       <p className="mb-2"><strong>PDF:</strong> <code className="break-all">{pdfUrl}</code></p>
       <p className="mb-1"><strong>Número de preguntas:</strong> {numeroPreguntas}</p>
       <p className="mb-4"><strong>Dificultad:</strong> {nivelDificultad}</p>
+
+
+      <div className="w-full max-w-4xl h-[500px] border-2 rounded shadow mb-6">
+        <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`}>
+          <Viewer fileUrl={`http://localhost:8000${pdfUrl}`} />
+        </Worker>
+      </div>
 
       {/* Simulación de selección de páginas */}
       <div className="w-full max-w-md mb-6">

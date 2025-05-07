@@ -1,6 +1,7 @@
 import os
+from pathlib import Path
 from fastapi import APIRouter, UploadFile, File, Request, Body
-from app.services.openai_service import generar_preguntas
+from app.services.openai_service import generar_preguntas, generar_explicacion
 from app.services.pdf_reader import extract_text_from_pdf
 
 router = APIRouter()
@@ -14,7 +15,7 @@ async def upload_pdf(file: UploadFile = File(...)):
     with open(file_location, "wb+") as file_object:
         file_object.write(await file.read())
 
-    return {"pdfUrl": f"/{file_location}"}
+    return {"pdfUrl": f"/{Path(file_location).as_posix()}"}
 
 
 @router.post("/generate-questions")
@@ -57,7 +58,7 @@ async def explain_mistake(request: Request):
     question = data.get("question")
     correct_answer = data.get("correctAnswer")
 
-    explanation = await openai_service.generar_explicacion(
+    explanation = await generar_explicacion(
         question, correct_answer
     )
 
