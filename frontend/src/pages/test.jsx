@@ -5,6 +5,7 @@ import ResultCard from "@/components/ResultCard";
 import { useTheme } from "@/context/ThemeContext";
 import ThemeToggle from "@/common/ThemeToggle";
 import { getExplanation } from "@/services/api";
+import { generateQuestionsFromPdf } from "@/services/api";
 
 
 export default function TestPage() {
@@ -19,34 +20,100 @@ export default function TestPage() {
   const router = useRouter();
   const { darkMode } = useTheme();
 
-  useEffect(() => {
-    try {
-      const storedRaw = localStorage.getItem("questions");
-      const storedVidas = localStorage.getItem("vidas");
-      const storedIndex = localStorage.getItem("currentIndex");
+  const TestSkeletonLoader = ({ darkMode }) => {
+    const shimmerStyle = {
+      background: 'linear-gradient(90deg, #e0e0e0 0%, #f0f0f0 50%, #e0e0e0 100%)',
+      backgroundSize: '200% 100%',
+      animation: 'shimmer 1.5s infinite linear',
+    };
   
-      if (!storedRaw) throw new Error("No se encontró el objeto 'questions'");
-      console.log("📦 RAW localStorage.questions:", localStorage.getItem("questions"));
+    return (
+      <div className={`min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-500 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
+        <ThemeToggle />
+  
+        <h2 className="text-2xl font-bold mb-2">Pregunta 1 / 5</h2>
+        <p className="text-lg mb-6">Vidas: ❤️❤️❤️❤️❤️</p>
+  
+        <div className={`p-6 rounded-lg shadow-md w-full max-w-xl transition-colors duration-500 ${darkMode ? "bg-gray-800" : "bg-white"}`}>
+          <div className="w-3/4 h-6 rounded mb-6" style={shimmerStyle}></div>
+          <div className="flex flex-col items-center gap-4">
+            {[...Array(4)].map((_, i) => (
+              <div
+                key={i}
+                className="w-full h-12 rounded-xl"
+                style={shimmerStyle}
+              ></div>
+            ))}
+          </div>
+        </div>
+  
+        <div className="flex flex-col gap-4 mt-6 w-full max-w-xl">
+          <div className="h-10 rounded bg-blue-400 opacity-60" style={shimmerStyle}></div>
+          <div className="h-10 rounded bg-red-400 opacity-60" style={shimmerStyle}></div>
+        </div>
+      </div>
+    );
+  };
+  
 
-      const parsed = JSON.parse(storedRaw);
-      const preguntasArray = parsed?.preguntas;
-
-      if (!Array.isArray(preguntasArray)) {
-        throw new Error("El campo 'preguntas' no es un array válido.");
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      const stored = localStorage.getItem("questions");
+  
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setQuestions(parsed.preguntas || []);
+        setVidas(parseInt(localStorage.getItem("vidas")) || 5);
+        setCurrentIndex(parseInt(localStorage.getItem("currentIndex")) || 0);
+        setLoading(false);
+        return;
       }
   
-      console.log("✅ Preguntas parseadas:", preguntasArray);
+      // Si no hay preguntas, generarlas ahora
+      const pdfUrl = localStorage.getItem("pdfUrl");
+      const paginas = localStorage.getItem("paginasSeleccionadas");
+      const numeroPreguntas = localStorage.getItem("numeroPreguntas");
+      const nivelDificultad = localStorage.getItem("nivelDificultad");
   
-      setQuestions(preguntasArray);
-      setVidas(storedVidas ? parseInt(storedVidas) : 5);
-      setCurrentIndex(storedIndex ? parseInt(storedIndex) : 0);
-      setLoading(false);
-    } catch (error) {
-      console.error("❌ Error al cargar preguntas:", error.message);
-      alert("No se encontraron preguntas. Redirigiendo al inicio...");
-      router.push("/");
-    }
+      if (!pdfUrl || !paginas || !numeroPreguntas || !nivelDificultad) {
+        alert("Faltan datos. Redirigiendo...");
+        router.push("/");
+        return;
+      }
+  
+      try {
+        const result = await generateQuestionsFromPdf(
+          pdfUrl,
+          paginas,
+          parseInt(numeroPreguntas),
+          nivelDificultad
+        );
+  
+        if (!result.preguntas || result.preguntas.length === 0) {
+          alert("No se pudieron generar preguntas.");
+          router.push("/");
+          return;
+        }
+  
+        localStorage.setItem("questions", JSON.stringify(result));
+        localStorage.setItem("vidas", "5");
+        localStorage.setItem("currentIndex", "0");
+  
+        setQuestions(result.preguntas);
+        setVidas(5);
+        setCurrentIndex(0);
+      } catch (e) {
+        alert("Error generando preguntas");
+        router.push("/");
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchData();
   }, []);
+  
   
 
   const handleSendAnswer = async () => {
@@ -92,15 +159,15 @@ export default function TestPage() {
     localStorage.setItem("currentIndex", "0");
   };
 
-  if (loading) return <p className="text-center mt-10">Cargando preguntas...</p>;
+  if (loading) return <TestSkeletonLoader darkMode={darkMode} />;
 
   if (!questions.length) {
-    return <p className="text-center mt-10 text-red-500">❌ No se encontraron preguntas. Volviendo al inicio...</p>;
+    return <p className="animate-fadeSlideIn text-center mt-10 text-red-500">❌ No se encontraron preguntas. Volviendo al inicio...</p>;
   }
 
   if (vidas <= 0) {
     return (
-      <div className={`flex flex-col items-center justify-center min-h-screen p-6 transition-colors duration-500 ${darkMode ? "bg-gray-900 text-white" : "bg-red-100 text-red-800"}`}>
+      <div className={`flex flex-col items-center justify-center min-h-screen p-6 transition-colors duration-500 ${darkMode ? "animate-fadeSlideIn bg-gray-900 text-white" : "animate-fadeSlideIn bg-red-100 text-red-800"}`}>
         <h1 className="text-5xl font-bold mb-8">💀 GAME OVER 💀</h1>
         <div className="flex flex-col gap-4 w-full max-w-sm">
           <button
@@ -154,7 +221,7 @@ export default function TestPage() {
   ];
 
   return (
-    <div className={`min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-500 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
+    <div className={`min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-500 ${darkMode ? "animate-fadeSlideIn bg-gray-900 text-white" : "animate-fadeSlideIn bg-gray-100 text-gray-900"}`}>
       <ThemeToggle />
 
       <h2 className="text-2xl font-bold mb-2">{`Pregunta ${currentIndex + 1} / ${questions.length}`}</h2>

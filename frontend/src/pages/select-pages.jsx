@@ -5,7 +5,6 @@ import ThemeToggle from '@/common/ThemeToggle';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-import { generateQuestionsFromPdf } from "@/services/api";
 
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf-worker/pdf.worker.min.mjs';
 
@@ -49,38 +48,19 @@ export default function SelectPagesStep() {
     );
   };
 
-  const handleContinuar = async () => {
+  const handleContinuar = () => {
     if (paginasSeleccionadas.length === 0) {
       alert("Selecciona al menos una página para continuar.");
       return;
     }
   
-    try {
-      const result = await generateQuestionsFromPdf(
-        pdfUrl,
-        paginasSeleccionadas.join(','),
-        numeroPreguntas,
-        nivelDificultad
-      );
+    // Solo guarda parámetros
+    localStorage.setItem("pdfUrl", pdfUrl);
+    localStorage.setItem("paginasSeleccionadas", paginasSeleccionadas.join(','));
+    localStorage.setItem("numeroPreguntas", numeroPreguntas);
+    localStorage.setItem("nivelDificultad", nivelDificultad);
   
-      if (!result.preguntas || result.preguntas.length === 0) {
-        alert("No se generaron preguntas.");
-        return;
-      }
-      console.log("🧪 Resultado de generateQuestionsFromPdf:", result);
-
-      localStorage.setItem("paginasSeleccionadas", paginasSeleccionadas.join(','));
-      localStorage.setItem("questions", JSON.stringify(result));
-      localStorage.setItem("vidas", "5");
-      localStorage.setItem("currentIndex", "0");
-      console.log("📦 select-pages localStorage.questions:", localStorage.getItem("questions"));
-
-  
-      router.push('/test');
-    } catch (error) {
-      console.error("Error generando preguntas:", error);
-      alert("Ocurrió un error al generar el test.");
-    }
+    router.push("/test"); // Navega inmediatamente
   };
 
   const handleCancelar = () => {
@@ -144,6 +124,7 @@ export default function SelectPagesStep() {
         >
           Continuar al Test ➡️
         </button>
+
       </div>
     </div>
     
