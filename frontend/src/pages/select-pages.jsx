@@ -3,6 +3,10 @@ import { useRouter } from 'next/router';
 import { useTheme } from "@/context/ThemeContext";
 import ThemeToggle from '@/common/ThemeToggle';
 import { Document, Page, pdfjs } from 'react-pdf';
+import QuestionCountSelector from '@/components/QuestionCountSelector';
+import DifficultySelector from '@/components/DifficultySelector';
+import PDFViewer from '@/components/PDFViewer';
+import PageSelectionFooter from '@/components/PageSelectionFooter';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -15,25 +19,27 @@ export default function SelectPagesStep() {
   const { darkMode } = useTheme();
 
   const [pdfUrl, setPdfUrl] = useState('');
-  const [numeroPreguntas, setNumeroPreguntas] = useState(0);
-  const [nivelDificultad, setNivelDificultad] = useState('');
+  const [numeroPreguntas, setNumeroPreguntas] = useState(5);
+  const [nivelDificultad, setNivelDificultad] = useState("Modo Relax");
   const [numPages, setNumPages] = useState(null);
   const [paginasSeleccionadas, setPaginasSeleccionadas] = useState([]);
+  const [allSelected, setAllSelected] = useState(false);
+
 
   useEffect(() => {
     const pdf = localStorage.getItem('pdfUrl');
     const preguntas = localStorage.getItem('numeroPreguntas');
     const dificultad = localStorage.getItem('nivelDificultad');
 
-    if (!pdf || !preguntas || !dificultad) {
+    if (!pdf) {
       alert("Faltan datos para continuar. Regresando al inicio.");
       router.push('/');
       return;
     }
 
     setPdfUrl(pdf);
-    setNumeroPreguntas(Number(preguntas));
-    setNivelDificultad(dificultad);
+    setNumeroPreguntas(Number(preguntas) || 5);
+    setNivelDificultad(dificultad || "Modo Relax");
   }, []);
 
   const handleDocumentLoadSuccess = ({ numPages }) => {
@@ -47,6 +53,18 @@ export default function SelectPagesStep() {
         : [...prev, pageNum]
     );
   };
+
+  const handleSelectAllPages = () => {
+  if (allSelected) {
+    setPaginasSeleccionadas([]);
+    setAllSelected(false);
+  } else {
+    const allPages = Array.from({ length: numPages }, (_, i) => i + 1);
+    setPaginasSeleccionadas(allPages);
+    setAllSelected(true);
+  }
+};
+
 
   const handleContinuar = () => {
     if (paginasSeleccionadas.length === 0) {
@@ -75,58 +93,37 @@ export default function SelectPagesStep() {
 
       <h1 className="text-3xl font-bold mb-4 text-center">Selecciona las páginas del PDF 📄</h1>
 
-      <p className="mb-2"><strong>PDF:</strong> <code className="break-all">{pdfUrl}</code></p>
+      {/*       <p className="mb-2"><strong>PDF:</strong> <code className="break-all">{pdfUrl}</code></p>
       <p className="mb-1"><strong>Número de preguntas:</strong> {numeroPreguntas}</p>
-      <p className="mb-4"><strong>Dificultad:</strong> {nivelDificultad}</p>
+      <p className="mb-4"><strong>Dificultad:</strong> {nivelDificultad}</p> */}
+
+      <QuestionCountSelector 
+        value={numeroPreguntas} 
+        onChange={setNumeroPreguntas} 
+      />
+        
+      <DifficultySelector 
+        value={nivelDificultad} 
+        onChange={setNivelDificultad} 
+      />
 
       {pdfUrl && (
-        <Document
-          file={`http://localhost:8000${pdfUrl}`}
+        <PDFViewer
+          pdfUrl={pdfUrl}
+          numPages={numPages}
           onLoadSuccess={handleDocumentLoadSuccess}
-        >
-          <div className="w-full overflow-x-auto mt-6 mb-12 px-2">
-            <div className="flex flex-nowrap gap-6 p-4 border rounded-lg bg-white dark:bg-gray-800 w-fit mx-auto shadow-md">
-              {Array.from({ length: numPages }, (_, index) => {
-                const pageNum = index + 1;
-                const isSelected = paginasSeleccionadas.includes(pageNum);
-                return (
-                  <div
-                    key={pageNum}
-                    onClick={() => togglePageSelection(pageNum)}
-                    className={`flex flex-col items-center min-w-[120px] cursor-pointer transform transition
-                      ${isSelected ? "border-4 border-green-500 shadow-xl" : "border border-transparent"}
-                      hover:scale-105`}
-                  >
-                    <Page
-                      pageNumber={pageNum}
-                      width={100}
-                      className="rounded"
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </Document>
+          selectedPages={paginasSeleccionadas}
+          handleSelectAll={handleSelectAllPages}
+          togglePageSelection={togglePageSelection}
+          allSelected={allSelected}
+        />
       )}
 
-      <div className="flex gap-4">
-        <button
-          onClick={handleCancelar}
-          className="bg-gray-500 text-white px-6 py-3 rounded hover:bg-gray-700 transition font-semibold"
-        >
-          Cancelar
-        </button>
-
-        <button
-          onClick={handleContinuar}
-          className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 transition font-semibold"
-        >
-          Continuar al Test ➡️
-        </button>
-
-      </div>
+      <PageSelectionFooter
+        onCancel={handleCancelar}
+        onContinue={handleContinuar}
+      />
     </div>
-    
+
   );
 }
