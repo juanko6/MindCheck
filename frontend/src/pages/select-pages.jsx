@@ -24,6 +24,7 @@ export default function SelectPagesStep() {
   const [numPages, setNumPages] = useState(null);
   const [paginasSeleccionadas, setPaginasSeleccionadas] = useState([]);
   const [allSelected, setAllSelected] = useState(false);
+  const [zoom, setZoom] = useState(100);
 
 
   useEffect(() => {
@@ -107,6 +108,9 @@ export default function SelectPagesStep() {
         onChange={setNivelDificultad} 
       />
 
+
+
+
       {pdfUrl && (
         <PDFViewer
           pdfUrl={pdfUrl}
@@ -116,8 +120,23 @@ export default function SelectPagesStep() {
           handleSelectAll={handleSelectAllPages}
           togglePageSelection={togglePageSelection}
           allSelected={allSelected}
+          zoom={zoom}
         />
       )}
+
+      <div className="flex items-center gap-4 mt-8 mb-4">
+        <label className="font-medium">Zoom:</label>
+        <input
+          type="range"
+          min="100"
+          max="250"
+          step="10"
+          value={zoom}
+          onChange={(e) => setZoom(Number(e.target.value))}
+          className="w-40"
+        />
+        <span>{zoom}%</span>
+      </div>
 
       <PageSelectionFooter
         onCancel={handleCancelar}

@@ -8,6 +8,7 @@ export default function PDFViewer({
   togglePageSelection,
   handleSelectAll,
   allSelected,
+  zoom,
 }) {
   return (
     <div className="w-full max-w-5xl mx-auto">
@@ -43,7 +44,7 @@ export default function PDFViewer({
                 >
                   <Page
                     pageNumber={pageNum}
-                    width={100}
+                    width={zoom}
                     className="rounded"
                   />
                 </div>
