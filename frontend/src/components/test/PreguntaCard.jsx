@@ -4,7 +4,7 @@ export default function PreguntaCard({ pregunta, opciones, selectedOption, setSe
   const { darkMode } = useTheme();
 
   return (
-    <div className={`p-6 rounded-lg shadow-md w-full max-w-xl transition-colors duration-500
+    <div className={`mt-6 p-6 rounded-lg shadow-md w-full max-w-xl transition-colors duration-500
       ${darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}>
 
       <p className={`text-lg font-semibold mb-6 text-center ${darkMode ? "text-white" : "text-gray-800"}`}>

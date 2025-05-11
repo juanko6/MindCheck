@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import Navbar from "@/components/common/Navbar";
 import PreguntaCard from "@/components/test/PreguntaCard";
 import ResultCard from "@/components/test/ResultCard";
 import { useTheme } from "@/context/ThemeContext";
-import ThemeToggle from "@/components/common/ThemeToggle";
 import { getExplanation } from "@/services/api";
 import { generateQuestionsFromPdf } from "@/services/api";
-  import TestSkeletonLoader from "@/components/test/SkeletonLoader";
+import TestSkeletonLoader from "@/components/test/SkeletonLoader";
 
 
 export default function TestPage() {
@@ -15,9 +15,9 @@ export default function TestPage() {
   const [selectedOption, setSelectedOption] = useState(null);
   const [feedback, setFeedback] = useState("");
   const [isCorrect, setIsCorrect] = useState(null);
-  const [vidas, setVidas] = useState(5);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [tokens, setTokens] = useState(0); // Tokens basados en páginas seleccionadas
   const router = useRouter();
   const { darkMode } = useTheme();
 
@@ -28,7 +28,6 @@ export default function TestPage() {
       if (stored) {
         const parsed = JSON.parse(stored);
         setQuestions(parsed.preguntas || []);
-        setVidas(parseInt(localStorage.getItem("vidas")) || 5);
         setCurrentIndex(parseInt(localStorage.getItem("currentIndex")) || 0);
         setLoading(false);
         return;
@@ -61,11 +60,9 @@ export default function TestPage() {
         }
   
         localStorage.setItem("questions", JSON.stringify(result));
-        localStorage.setItem("vidas", "5");
         localStorage.setItem("currentIndex", "0");
-  
+
         setQuestions(result.preguntas);
-        setVidas(5);
         setCurrentIndex(0);
       } catch (e) {
         alert("Error generando preguntas");
@@ -100,32 +97,18 @@ export default function TestPage() {
 
   const handleNextQuestion = () => {
     setShowModal(false);
-  
-    // Solo si fue incorrecta, reducimos vida
-    if (!isCorrect) {
-      setVidas(prev => {
-        const newVidas = prev - 1;
-        localStorage.setItem("vidas", newVidas.toString());
-        return newVidas;
-      });
-    }
-  
-    // Si aún hay preguntas por responder y vidas, avanzamos
     setSelectedOption(null);
     setFeedback("");
     setIsCorrect(null);
-    setCurrentIndex(prev => {
-      const newIndex = prev + 1;
-      localStorage.setItem("currentIndex", newIndex.toString());
-      return newIndex;
-    });
+    const newIndex = currentIndex + 1;
+    setCurrentIndex(newIndex);
+    localStorage.setItem("currentIndex", newIndex.toString());
   };
+
 
   const handleRetry = () => {
     setCurrentIndex(0);
-    setVidas(5);
     setSelectedOption(null);
-    localStorage.setItem("vidas", "5");
     localStorage.setItem("currentIndex", "0");
   };
 
@@ -135,34 +118,13 @@ export default function TestPage() {
     return <p className="animate-fadeSlideIn text-center mt-10 text-red-500">❌ No se encontraron preguntas. Volviendo al inicio...</p>;
   }
 
-  if (vidas <= 0) {
-    return (
-      <div className={`flex flex-col items-center justify-center min-h-screen p-6 transition-colors duration-500 ${darkMode ? "animate-fadeSlideIn bg-gray-900 text-white" : "animate-fadeSlideIn bg-red-100 text-red-800"}`}>
-        <h1 className="text-5xl font-bold mb-8">💀 GAME OVER 💀</h1>
-        <div className="flex flex-col gap-4 w-full max-w-sm">
-          <button
-            className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300"
-            onClick={() => {
-              localStorage.clear();
-              router.push("/");
-            }}
-          >
-            Volver al Inicio
-          </button>
-          <button
-            className="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300"
-            onClick={handleRetry}
-          >
-            Volver a Intentarlo
-          </button>
-        </div>
-      </div>
-    );
-  }
+
 
   if (currentIndex >= questions.length) {
     const total = questions.length;
-    const correctas = total - (5 - vidas);
+    const correctas = questions.filter((q, index) =>
+      index < currentIndex && selectedOption === q.respuesta // simplificado
+    ).length;
     const porcentaje = Math.round((correctas / total) * 100);
     let mensajeFinal = "";
 
@@ -191,11 +153,12 @@ export default function TestPage() {
   ];
 
   return (
+    
     <div className={`min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-500 ${darkMode ? "animate-fadeSlideIn bg-gray-900 text-white" : "animate-fadeSlideIn bg-gray-100 text-gray-900"}`}>
-      <ThemeToggle />
+      <Navbar />
 
       <h2 className="text-2xl font-bold mb-2">{`Pregunta ${currentIndex + 1} / ${questions.length}`}</h2>
-      <p className="text-lg mb-6">Vidas: {"❤️".repeat(vidas)}</p>
+      
 
       <PreguntaCard
         pregunta={currentQuestion.pregunta}
@@ -217,6 +180,7 @@ export default function TestPage() {
       <button
         onClick={() => {
           localStorage.clear();
+          localStorage.setItem("userTokens", tokens);
           router.push("/");
         }}
         className="mt-4 w-full max-w-xl bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"

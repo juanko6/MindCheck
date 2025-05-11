@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTheme } from "@/context/ThemeContext";
 import ThemeToggle from '@/components/common/ThemeToggle';
+import Navbar from '@/components/common/Navbar';
 import { Document, Page, pdfjs } from 'react-pdf';
 import QuestionCountSelector from '@/components/select-pages/QuestionCountSelector';
 import DifficultySelector from '@/components/select-pages/DifficultySelector';
@@ -11,8 +12,6 @@ import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf-worker/pdf.worker.min.mjs';
-
-
 
 export default function SelectPagesStep() {
   const router = useRouter();
@@ -72,13 +71,28 @@ export default function SelectPagesStep() {
       alert("Selecciona al menos una página para continuar.");
       return;
     }
+
+    const tokensUsuario = parseInt(localStorage.getItem("userTokens")) || 0;
+    const costo = paginasSeleccionadas.length * 10;
+    
+    if (tokensUsuario  < costo) {
+      alert(`No tienes suficientes tokens. Necesitas ${costo}, pero tienes ${tokensUsuario }.`);
+      return;
+    }
+
+    // Descontar tokens
+    const nuevosTokens = tokensUsuario - costo;
+    localStorage.setItem("userTokens", nuevosTokens.toString());
+    localStorage.setItem("tokensDisponibles", nuevosTokens.toString());
+    localStorage.setItem("tokensConsumidos", costo.toString());
+
   
-    // Solo guarda parámetros
+    // Guardar parámetros del test
     localStorage.setItem("pdfUrl", pdfUrl);
     localStorage.setItem("paginasSeleccionadas", paginasSeleccionadas.join(','));
     localStorage.setItem("numeroPreguntas", numeroPreguntas);
     localStorage.setItem("nivelDificultad", nivelDificultad);
-  
+
     router.push("/test"); // Navega inmediatamente
   };
 
@@ -89,8 +103,7 @@ export default function SelectPagesStep() {
   return (
     <div className={`min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-500
       ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
-
-      <ThemeToggle />
+      <Navbar />
 
       <h1 className="text-3xl font-bold mb-4 text-center">Selecciona las páginas del PDF 📄</h1>
 
@@ -107,9 +120,6 @@ export default function SelectPagesStep() {
         value={nivelDificultad} 
         onChange={setNivelDificultad} 
       />
-
-
-
 
       {pdfUrl && (
         <PDFViewer
