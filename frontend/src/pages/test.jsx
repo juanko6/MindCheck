@@ -6,6 +6,7 @@ import { useTheme } from "@/context/ThemeContext";
 import ThemeToggle from "@/components/common/ThemeToggle";
 import { getExplanation } from "@/services/api";
 import { generateQuestionsFromPdf } from "@/services/api";
+  import TestSkeletonLoader from "@/components/test/SkeletonLoader";
 
 
 export default function TestPage() {
@@ -20,43 +21,6 @@ export default function TestPage() {
   const router = useRouter();
   const { darkMode } = useTheme();
 
-  const TestSkeletonLoader = ({ darkMode }) => {
-    const shimmerStyle = {
-      background: 'linear-gradient(90deg, #e0e0e0 0%, #f0f0f0 50%, #e0e0e0 100%)',
-      backgroundSize: '200% 100%',
-      animation: 'shimmer 1.5s infinite linear',
-    };
-  
-    return (
-      <div className={`min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-500 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
-        <ThemeToggle />
-  
-        <h2 className="text-2xl font-bold mb-2">Pregunta 1 / 5</h2>
-        <p className="text-lg mb-6">Vidas: ❤️❤️❤️❤️❤️</p>
-  
-        <div className={`p-6 rounded-lg shadow-md w-full max-w-xl transition-colors duration-500 ${darkMode ? "bg-gray-800" : "bg-white"}`}>
-          <div className="w-3/4 h-6 rounded mb-6" style={shimmerStyle}></div>
-          <div className="flex flex-col items-center gap-4">
-            {[...Array(4)].map((_, i) => (
-              <div
-                key={i}
-                className="w-full h-12 rounded-xl"
-                style={shimmerStyle}
-              ></div>
-            ))}
-          </div>
-        </div>
-  
-        <div className="flex flex-col gap-4 mt-6 w-full max-w-xl">
-          <div className="h-10 rounded bg-blue-400 opacity-60" style={shimmerStyle}></div>
-          <div className="h-10 rounded bg-red-400 opacity-60" style={shimmerStyle}></div>
-        </div>
-      </div>
-    );
-  };
-  
-
-  
   useEffect(() => {
     const fetchData = async () => {
       const stored = localStorage.getItem("questions");
