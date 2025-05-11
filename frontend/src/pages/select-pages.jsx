@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTheme } from "@/context/ThemeContext";
-import ThemeToggle from '@/common/ThemeToggle';
+import ThemeToggle from '@/components/common/ThemeToggle';
 import { Document, Page, pdfjs } from 'react-pdf';
-import QuestionCountSelector from '@/components/QuestionCountSelector';
-import DifficultySelector from '@/components/DifficultySelector';
-import PDFViewer from '@/components/PDFViewer';
-import PageSelectionFooter from '@/components/PageSelectionFooter';
+import QuestionCountSelector from '@/components/select-pages/QuestionCountSelector';
+import DifficultySelector from '@/components/select-pages/DifficultySelector';
+import PDFViewer from '@/components/select-pages/PDFViewer';
+import PageSelectionFooter from '@/components/select-pages/PageSelectionFooter';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 

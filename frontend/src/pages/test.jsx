@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import PreguntaCard from "@/components/PreguntaCard";
-import ResultCard from "@/components/ResultCard";
+import PreguntaCard from "@/components/test/PreguntaCard";
+import ResultCard from "@/components/test/ResultCard";
 import { useTheme } from "@/context/ThemeContext";
-import ThemeToggle from "@/common/ThemeToggle";
+import ThemeToggle from "@/components/common/ThemeToggle";
 import { getExplanation } from "@/services/api";
 import { generateQuestionsFromPdf } from "@/services/api";
 

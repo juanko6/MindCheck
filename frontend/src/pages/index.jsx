@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import DragAndDropUploader from '@/components/DragAndDropUploader';
+import DragAndDropUploader from '@/components/upload-file/DragAndDropUploader';
 import { useTheme } from "@/context/ThemeContext";
-import ThemeToggle from '@/common/ThemeToggle';
+import ThemeToggle from '@/components/common/ThemeToggle';
 
 
 export default function HomePage() {
