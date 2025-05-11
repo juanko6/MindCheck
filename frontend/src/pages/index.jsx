@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Navbar from '@/components/common/Navbar';
 import DragAndDropUploader from '@/components/upload-file/DragAndDropUploader';
 import { useTheme } from "@/context/ThemeContext";
-import ThemeToggle from '@/components/common/ThemeToggle';
+
 
 
 export default function HomePage() {
