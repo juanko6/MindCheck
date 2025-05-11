@@ -147,7 +147,7 @@ export default function TestPage() {
     }
   
     // Si aún hay preguntas por responder y vidas, avanzamos
-    setSelectedOption("");
+    setSelectedOption(null);
     setFeedback("");
     setIsCorrect(null);
     setCurrentIndex(prev => {
@@ -160,7 +160,7 @@ export default function TestPage() {
   const handleRetry = () => {
     setCurrentIndex(0);
     setVidas(5);
-    setSelectedOption("");
+    setSelectedOption(null);
     localStorage.setItem("vidas", "5");
     localStorage.setItem("currentIndex", "0");
   };
