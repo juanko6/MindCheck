@@ -6,8 +6,7 @@ export default function TestSkeletonLoader({ darkMode }) {
     <div className={`min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-500 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
       <Navbar />
 
-      <h2 className="text-2xl font-bold mb-2">Pregunta 1 / 5</h2>
-      <p className="text-lg mb-6">Vidas: ❤️❤️❤️❤️❤️</p>
+      <div className="w-120 h-6 rounded shimmer mb-6"></div>
 
       <div className={`p-6 rounded-lg shadow-md w-full max-w-xl transition-colors duration-500 ${darkMode ? "bg-gray-800" : "bg-white"}`}>
         <div className="w-3/4 h-6 rounded mb-6 shimmer"></div>

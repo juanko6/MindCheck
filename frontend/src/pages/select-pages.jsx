@@ -105,7 +105,7 @@ export default function SelectPagesStep() {
       ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
       <Navbar />
 
-      <h1 className="text-3xl font-bold mb-4 text-center">Selecciona las páginas del PDF 📄</h1>
+      <h1 className="mt-20 text-3xl font-bold mb-4 text-center">Selecciona las páginas del PDF 📄</h1>
 
       {/*       <p className="mb-2"><strong>PDF:</strong> <code className="break-all">{pdfUrl}</code></p>
       <p className="mb-1"><strong>Número de preguntas:</strong> {numeroPreguntas}</p>

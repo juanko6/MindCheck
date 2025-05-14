@@ -3,6 +3,8 @@ import { useRouter } from 'next/router';
 import Navbar from '@/components/common/Navbar';
 import DragAndDropUploader from '@/components/upload-file/DragAndDropUploader';
 import { useTheme } from "@/context/ThemeContext";
+import CircularLoader from "@/components/common/CircularLoader";
+
 
 
 
@@ -10,20 +12,26 @@ export default function HomePage() {
 
   const router = useRouter();
   const { darkMode } = useTheme();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const tokensExist = localStorage.getItem("userTokens");
     if (!tokensExist) {
       localStorage.setItem("userTokens", "300");
     }
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+    return () => clearTimeout(timeout);
   }, []);
 
   const handleUploadSuccess = (pdfUrl) => {
     localStorage.setItem('pdfUrl', pdfUrl);
     localStorage.setItem('currentIndex', '0');
     router.push('/select-pages')
-
   };
+
+  if (loading) return <CircularLoader />;
 
   return (
     <div className={`min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-500

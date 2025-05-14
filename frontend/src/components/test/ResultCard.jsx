@@ -1,7 +1,9 @@
 // components/ResultCard.jsx
 import { useRouter } from "next/router";
+import ResumenPreguntas from "./ResumenPreguntas";
 
-export default function ResultCard({ total, correctas, porcentaje, mensajeFinal, onRetry }) {
+
+export default function ResultCard({ total, correctas, porcentaje, mensajeFinal, onRetry, respuestasUsuario = [] }) {
   const router = useRouter();
 
   return (
@@ -35,6 +37,10 @@ export default function ResultCard({ total, correctas, porcentaje, mensajeFinal,
           <p className="text-base mt-2 font-normal">Usa las mismas preguntas otra vez.</p>
         </div>
       </div>
+
+      <ResumenPreguntas respuestasUsuario={respuestasUsuario} />
+
+
     </div>
   );
 }

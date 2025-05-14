@@ -9,6 +9,7 @@ import { generateQuestionsFromPdf } from "@/services/api";
 import TestSkeletonLoader from "@/components/test/SkeletonLoader";
 
 
+
 export default function TestPage() {
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -17,7 +18,13 @@ export default function TestPage() {
   const [isCorrect, setIsCorrect] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [enviandoRespuesta, setEnviandoRespuesta] = useState(false);
+  const [mensajeReinicio, setMensajeReinicio] = useState("");
+  const [esperandoFeedback, setEsperandoFeedback] = useState(false);
+
   const [tokens, setTokens] = useState(0); // Tokens basados en páginas seleccionadas
+  const [respuestasUsuario, setRespuestasUsuario] = useState([]);
+
   const router = useRouter();
   const { darkMode } = useTheme();
 
@@ -78,22 +85,66 @@ export default function TestPage() {
   
 
   const handleSendAnswer = async () => {
-    console.log("Selected option:", selectedOption);
-    if (selectedOption === null || selectedOption === undefined) return;
+    if (selectedOption === null || selectedOption === undefined || enviandoRespuesta) return;
+
+    setEnviandoRespuesta(true);
+    setEsperandoFeedback(true);
+    setShowModal(true);
 
     const currentQuestion = questions[currentIndex];
+    const opciones = [
+      currentQuestion.opcion1,
+      currentQuestion.opcion2,
+      currentQuestion.opcion3,
+      currentQuestion.opcion4
+    ];
+
+    let explanation = "";
+    let fueCorrecta = false;
+
     if (selectedOption === currentQuestion.respuesta) {
-      setFeedback("✅ ¡Correcto!");
-      setIsCorrect(true);
-    } else {
-      const explanation = await getExplanation(currentQuestion.pregunta, 
-        [currentQuestion.opcion1, currentQuestion.opcion2, currentQuestion.opcion3, currentQuestion.opcion4][currentQuestion.respuesta]
-      );
-      setFeedback(`❌ Incorrecto. ${explanation}`);
-      setIsCorrect(false);
+      setTimeout(() => {
+        setFeedback("✅ ¡Correcto!");
+        setIsCorrect(true);
+        setEsperandoFeedback(false); // Oculta loader
+        setShowModal(true); // Mostrar feedback solo cuando ya se procesó todo
+      }, 600); // Espera visible de 0.6 segundos
+      fueCorrecta = true;
+      } else {
+        try {
+          explanation = await getExplanation(
+            currentQuestion.pregunta,
+            opciones[currentQuestion.respuesta]
+          );
+          setTimeout(() => {
+            setFeedback(`❌ Incorrecto. ${explanation}`);
+            setIsCorrect(false);
+            setEsperandoFeedback(false);
+          }, 600); // misma espera para mantener consistencia
+        } catch (e) {
+          setTimeout(() => {
+            setFeedback("❌ Incorrecto. (No se pudo obtener la explicación)");
+            setIsCorrect(false);
+            setEsperandoFeedback(false);
+          }, 600); // incluso en error, mostrar tras misma espera
+        }
     }
-    setShowModal(true);
+
+
+    setRespuestasUsuario(prev => [
+      ...prev,
+      {
+        pregunta: currentQuestion.pregunta,
+        opciones,
+        correcta: currentQuestion.respuesta,
+        seleccionada: selectedOption,
+        fueCorrecta
+      }
+    ]);
+
+    setEnviandoRespuesta(false);
   };
+
 
   const handleNextQuestion = () => {
     setShowModal(false);
@@ -109,8 +160,17 @@ export default function TestPage() {
   const handleRetry = () => {
     setCurrentIndex(0);
     setSelectedOption(null);
+    setFeedback("");
+    setIsCorrect(null);
+    setShowModal(false);
+    setRespuestasUsuario([]);
     localStorage.setItem("currentIndex", "0");
+
+    setMensajeReinicio("¡Test reiniciado con éxito!");
+    setTimeout(() => setMensajeReinicio(""), 2500);
   };
+
+
 
   if (loading) return <TestSkeletonLoader darkMode={darkMode} />;
 
@@ -118,13 +178,9 @@ export default function TestPage() {
     return <p className="animate-fadeSlideIn text-center mt-10 text-red-500">❌ No se encontraron preguntas. Volviendo al inicio...</p>;
   }
 
-
-
   if (currentIndex >= questions.length) {
     const total = questions.length;
-    const correctas = questions.filter((q, index) =>
-      index < currentIndex && selectedOption === q.respuesta // simplificado
-    ).length;
+    const correctas = respuestasUsuario.filter(r => r.fueCorrecta).length;
     const porcentaje = Math.round((correctas / total) * 100);
     let mensajeFinal = "";
 
@@ -140,7 +196,10 @@ export default function TestPage() {
         porcentaje={porcentaje}
         mensajeFinal={mensajeFinal}
         onRetry={handleRetry}
+        respuestasUsuario={respuestasUsuario}
+        
       />
+      
     );
   }
 
@@ -156,8 +215,17 @@ export default function TestPage() {
     
     <div className={`min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-500 ${darkMode ? "animate-fadeSlideIn bg-gray-900 text-white" : "animate-fadeSlideIn bg-gray-100 text-gray-900"}`}>
       <Navbar />
+      
+      {mensajeReinicio && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+          <div className="bg-green-500 text-white px-8 py-5 rounded-2xl shadow-2xl text-xl font-semibold flex items-center gap-4 animate-popAndFade">
+            <span className="text-3xl">🎯</span>
+            <span>{mensajeReinicio}</span>
+          </div>
+        </div>
+      )}
 
-      <h2 className="text-2xl font-bold mb-2">{`Pregunta ${currentIndex + 1} / ${questions.length}`}</h2>
+      <h2 className="mt-20 text-2xl font-bold mb-2">{`Pregunta ${currentIndex + 1} / ${questions.length}`}</h2>
       
 
       <PreguntaCard
@@ -169,10 +237,9 @@ export default function TestPage() {
 
       <button
         onClick={handleSendAnswer}
+        disabled={selectedOption === null || enviandoRespuesta}
         className={`mt-6 w-full max-w-xl font-bold py-2 px-4 rounded disabled:opacity-50
           ${darkMode ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-blue-500 hover:bg-blue-700 text-white"}`}
-          disabled={selectedOption === null}
-
       >
         Enviar Respuesta
       </button>
@@ -191,19 +258,30 @@ export default function TestPage() {
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm z-50">
           <div className={`p-8 rounded-lg max-w-md w-[90%] text-center shadow-2xl transition-all duration-300 ${darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}>
-            <h3 className="text-3xl font-bold mb-6">
-              {isCorrect ? "✅ ¡Correcto!" : "❌ Incorrecto"}
-            </h3>
-            <p className="mb-8 text-base leading-relaxed">{feedback}</p>
-            <button
-              onClick={handleNextQuestion}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded"
-            >
-              Siguiente
-            </button>
+            {esperandoFeedback ? (
+              <div className="flex flex-col items-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-blue-500 mb-4"></div>
+                <p className="text-lg font-medium">Evaluando respuesta...</p>
+              </div>
+            ) : (
+              <>
+                <h3 className="text-3xl font-bold mb-6">
+                  {isCorrect ? "✅ ¡Correcto!" : "❌ Incorrecto"}
+                </h3>
+                <p className="mb-8 text-base leading-relaxed">{feedback}</p>
+                <button
+                  onClick={handleNextQuestion}
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded"
+                >
+                  Siguiente
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
+
+
     </div>
   );
 }
