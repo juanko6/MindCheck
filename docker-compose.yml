@@ -10,6 +10,8 @@ services:
 
   frontend:
     build: ./frontend
+    args:
+        NEXT_PUBLIC_API_URL: http://168.75.106.115:8000
     container_name: mindcheck-frontend
     ports:
       - "3000:3000"
