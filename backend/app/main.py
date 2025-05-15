@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -5,6 +6,12 @@ from app.routes import pdf_routes
 
 app = FastAPI()
 
+# Crear carpeta uploads si no existe
+upload_dir = "uploads"
+if not os.path.exists(upload_dir):
+    os.makedirs(upload_dir)
+
+# Montar carpeta uploads para servir archivos estáticos
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 
