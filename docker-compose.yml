@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   backend:
     build: ./backend
@@ -9,7 +11,10 @@ services:
       - OPENAI_API_KEY=REVOKED_OPENAI_KEY
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://168.75.106.115:8000
     container_name: mindcheck-frontend
     ports:
       - "3000:3000"

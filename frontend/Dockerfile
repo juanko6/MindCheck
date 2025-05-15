@@ -1,3 +1,5 @@
+
+
 # Etapa de build
 FROM node:23-alpine AS builder
 
