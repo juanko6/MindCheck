@@ -53,3 +53,5 @@ htmlcov/
 
 # Git
 *.orig
+
+docker-compose.override.yml
