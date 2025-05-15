@@ -4,6 +4,8 @@ services:
   backend:
     build: ./backend
     container_name: mindcheck-backend
+    volumes:
+      - ./backend/uploads:/app/uploads
     ports:
       - "8000:8000"
     restart: always
