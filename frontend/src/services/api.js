@@ -1,11 +1,11 @@
 // services/api.js
 import axios from "axios";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+console.log("API URL usada:", API_BASE);
 /**
  * Sube un archivo PDF al backend para generar preguntas.
  * @param {File} file - Archivo PDF seleccionado por el usuario.
- * @param {number} numeroPreguntas - Número de preguntas a generar.
- * @param {string} nivelDificultad - Nivel de dificultad seleccionado.
  * @param {function} onProgress - Callback para monitorear el progreso de subida.
  * @returns {Promise<Object>} - Respuesta del backend con las preguntas generadas.
  */
@@ -13,8 +13,7 @@ export const uploadPDF = async (file, onProgress) => {
   const formData = new FormData();
   formData.append("file", file);
 
-
-  const response = await axios.post("http://localhost:8000/upload-pdf", formData, {
+  const response = await axios.post(`${API_BASE}/upload-pdf`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
     onUploadProgress: onProgress,
   });
@@ -30,7 +29,7 @@ export const uploadPDF = async (file, onProgress) => {
  */
 export const getExplanation = async (pregunta, respuestaCorrecta) => {
   try {
-    const response = await axios.post("http://localhost:8000/explain", {
+    const response = await axios.post(`${API_BASE}/explain`, {
       question: pregunta,
       correctAnswer: respuestaCorrecta,
     });
@@ -41,14 +40,22 @@ export const getExplanation = async (pregunta, respuestaCorrecta) => {
   }
 };
 
+/**
+ * Genera preguntas a partir de un PDF con parámetros seleccionados.
+ * @param {string} pdfUrl - URL o ruta del PDF.
+ * @param {Array<number>} paginas - Páginas seleccionadas.
+ * @param {number} numeroPreguntas - Número de preguntas a generar.
+ * @param {string} nivelDificultad - Nivel de dificultad.
+ * @returns {Promise<Object>} - Preguntas generadas.
+ */
 export const generateQuestionsFromPdf = async (pdfUrl, paginas, numeroPreguntas, nivelDificultad) => {
-    const response = await axios.post("http://localhost:8000/generate-questions", {
-      pdfUrl,
-      paginas,
-      numeroPreguntas,
-      nivelDificultad
-    });
-    
+  const response = await axios.post(`${API_BASE}/generate-questions`, {
+    pdfUrl,
+    paginas,
+    numeroPreguntas,
+    nivelDificultad,
+  });
+
   let data = response.data;
 
   // ✅ Asegurarse de que no venga doblemente anidado
@@ -57,5 +64,4 @@ export const generateQuestionsFromPdf = async (pdfUrl, paginas, numeroPreguntas,
   }
 
   return data;
-  };
-  
+};

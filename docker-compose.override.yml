@@ -2,15 +2,19 @@ services:
   backend:
     volumes:
       - ./backend:/app
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     environment:
       - ENV=development
+      - OPENAI_API_KEY=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
+
 
   frontend:
+    command: sh -c "npm install && npm run dev"
     volumes:
       - ./frontend:/app
-    command: npm run dev
+    working_dir: /app
     environment:
       - NODE_ENV=development
+
     ports:
       - "3000:3000"

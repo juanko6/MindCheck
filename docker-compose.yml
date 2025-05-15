@@ -5,6 +5,8 @@ services:
     ports:
       - "8000:8000"
     restart: always
+    environment:
+      - OPENAI_API_KEY=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
 
   frontend:
     build: ./frontend
@@ -12,3 +14,5 @@ services:
     ports:
       - "3000:3000"
     restart: always
+    environment:
+      - NEXT_PUBLIC_API_URL=http://168.75.106.115:8000
