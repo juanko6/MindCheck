@@ -15,10 +15,15 @@ if not os.path.exists(upload_dir):
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 
+origins = [
+    "http://168.75.106.115:3000",
+    "http://localhost:3000",  # opcional, para desarrollo local
+]
+
 # Configuración de CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://mi-frontend.com"],
+    allow_origins= origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
