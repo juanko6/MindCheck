@@ -7,7 +7,7 @@ from app.services.pdf_reader import extract_text_from_pdf
 router = APIRouter()
 
 @router.post("/upload-pdf")
-async def upload_pdf(file: UploadFile = File(...)):
+async def upload_pdf(request: Request, file: UploadFile = File(...)):
     upload_dir = "uploads"
     os.makedirs(upload_dir, exist_ok=True)  # crea la carpeta si no existe
 
@@ -15,8 +15,10 @@ async def upload_pdf(file: UploadFile = File(...)):
     with open(file_location, "wb+") as file_object:
         file_object.write(await file.read())
 
-    return {"pdfUrl": f"/{Path(file_location).as_posix()}"}
+    # Generar URL completa para el archivo
+    full_url = f"{request.base_url}uploads/{file.filename.replace(' ', '%20')}"
 
+    return {"pdfUrl": full_url}
 
 @router.post("/generate-questions")
 async def generate_questions(data: dict = Body(...)):
