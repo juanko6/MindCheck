@@ -23,21 +23,28 @@ async def upload_pdf(request: Request, file: UploadFile = File(...)):
 
 @router.post("/generate-questions")
 async def generate_questions(data: dict = Body(...)):
-    pdf_path = data["pdfUrl"].lstrip("/")  # elimina el prefijo si viene con '/'
-
-    print(f"📥 Recibida solicitud para generar preguntas:")
-    print(f"   - PDF: {pdf_path}")
-    print(f"   - Páginas: {data['paginas']}")
-    print(f"   - Preguntas: {data['numeroPreguntas']}")
-    print(f"   - Dificultad: {data['nivelDificultad']}")
-
-    # Validar si el archivo existe
-    print(f"📁 Verificando existencia del archivo: {pdf_path}")
-    print(f"   - ¿Existe? {os.path.exists(pdf_path)}")
-
+    # Obtener datos del body
+    filename = data["pdfUrl"]
     paginas = data["paginas"]
     numero_preguntas = data["numeroPreguntas"]
     dificultad = data["nivelDificultad"]
+
+    # Decodificar nombre de archivo por si viene con caracteres especiales codificados (espacios, tildes)
+    filename = unquote(filename)
+    pdf_path = os.path.join("uploads", filename)
+
+    print("📥 Recibida solicitud para generar preguntas:")
+    print(f"   - PDF: {pdf_path}")
+    print(f"   - Páginas: {paginas}")
+    print(f"   - Preguntas: {numero_preguntas}")
+    print(f"   - Dificultad: {dificultad}")
+    print(f"📁 Verificando existencia del archivo: {pdf_path}")
+    print(f"   - ¿Existe? {os.path.exists(pdf_path)}")
+
+    # Verificar que el archivo existe
+    if not os.path.exists(pdf_path):
+        print(f"❌ El archivo PDF no se encontró: {pdf_path}")
+        raise HTTPException(status_code=404, detail="Archivo PDF no encontrado")
 
     try:
         with open(pdf_path, "rb") as file:
@@ -48,24 +55,15 @@ async def generate_questions(data: dict = Body(...)):
         print(f"📄 Texto extraído (primeros 200 caracteres): {texto[:200]}")
         print(f"   - Longitud total del texto: {len(texto)} caracteres")
 
-    except FileNotFoundError:
-        print(f"❌ El archivo PDF no se encontró: {pdf_path}")
-        raise HTTPException(status_code=404, detail="Archivo PDF no encontrado")
-    except Exception as e:
-        print(f"❌ Error al abrir o procesar el PDF: {str(e)}")
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail="Error al procesar el PDF")
-
-    # Lógica para generar preguntas usando texto + OpenAI...
-    try:
         preguntas = await generar_preguntas(texto, numero_preguntas, dificultad)
         print(f"✅ Preguntas generadas: {len(preguntas['preguntas'])}")
+
+        return {"preguntas": preguntas}
+
     except Exception as e:
         print("❌ Error al generar preguntas:", str(e))
-        preguntas = {"preguntas": []}
-
-
-    return {"preguntas": preguntas}
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Error generando preguntas")
 
 
 @router.post("/explain")
