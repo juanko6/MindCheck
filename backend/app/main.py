@@ -11,10 +11,6 @@ upload_dir = "uploads"
 if not os.path.exists(upload_dir):
     os.makedirs(upload_dir)
 
-# Montar carpeta uploads para servir archivos estáticos
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
-
-
 origins = [
     "http://168.75.106.115:3000",
     "http://localhost:3000",  # opcional, para desarrollo local
@@ -28,6 +24,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Montar carpeta uploads para servir archivos estáticos
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 
 # Registrar rutas
