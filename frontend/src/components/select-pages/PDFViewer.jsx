@@ -27,7 +27,7 @@ export default function PDFViewer({
       <div className="overflow-x-auto w-full px-2 bg-white dark:bg-gray-800 rounded-lg shadow-inner border border-gray-300 dark:border-gray-700">
 
         <Document
-          file={`http://localhost:8000${pdfUrl}`}
+          file={`${process.env.NEXT_PUBLIC_API_URL}${pdfUrl}`}
           onLoadSuccess={onLoadSuccess}
         >
           <div className="flex gap-4 py-4 w-fit">
