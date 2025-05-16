@@ -49,8 +49,11 @@ export const getExplanation = async (pregunta, respuestaCorrecta) => {
  * @returns {Promise<Object>} - Preguntas generadas.
  */
 export const generateQuestionsFromPdf = async (pdfUrl, paginas, numeroPreguntas, nivelDificultad) => {
+  // Extrae solo el nombre del archivo de la URL
+  const filename = decodeURIComponent(pdfUrl.split("/").pop());
+
   const response = await axios.post(`${API_BASE}/generate-questions`, {
-    pdfUrl,
+    pdfUrl: filename,  // 👈 solo el nombre, no la ruta completa
     paginas,
     numeroPreguntas,
     nivelDificultad,
@@ -58,10 +61,10 @@ export const generateQuestionsFromPdf = async (pdfUrl, paginas, numeroPreguntas,
 
   let data = response.data;
 
-  // ✅ Asegurarse de que no venga doblemente anidado
   if (data?.preguntas?.preguntas) {
     data = { preguntas: data.preguntas.preguntas };
   }
 
   return data;
 };
+
