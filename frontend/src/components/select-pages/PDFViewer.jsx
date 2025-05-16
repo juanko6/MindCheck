@@ -11,12 +11,18 @@ export default function PDFViewer({
   zoom,
 }) {
 
-    // Validar que la URL sea absoluta (empiece con http) o completarla con la base API
+  // Validar que la URL sea absoluta (empiece con http) o completarla con la base API
   const finalUrl = pdfUrl?.startsWith("http")
     ? pdfUrl
     : `${process.env.NEXT_PUBLIC_API_URL}${pdfUrl}`;
 
-  console.log("📄 URL PDF final usada:", finalUrl);
+  // Validación adicional para depuración
+  if (!finalUrl || typeof finalUrl !== "string") {
+    console.warn("❌ URL inválida para PDF:", finalUrl);
+  } else {
+    console.log("📄 URL PDF final usada:", finalUrl);
+  }
+
   return (
     <div className="w-full max-w-5xl mx-auto">
       <div className="flex justify-between items-center mb-2 px-2">
