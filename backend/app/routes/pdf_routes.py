@@ -1,6 +1,7 @@
 import os
+import traceback
 from pathlib import Path
-from fastapi import APIRouter, UploadFile, File, Request, Body
+from fastapi import APIRouter, UploadFile, File, Request, Body, HTTPException
 from app.services.openai_service import generar_preguntas, generar_explicacion
 from app.services.pdf_reader import extract_text_from_pdf
 
@@ -23,24 +24,37 @@ async def upload_pdf(request: Request, file: UploadFile = File(...)):
 @router.post("/generate-questions")
 async def generate_questions(data: dict = Body(...)):
     pdf_path = data["pdfUrl"].lstrip("/")  # elimina el prefijo si viene con '/'
+
+    print(f"📥 Recibida solicitud para generar preguntas:")
+    print(f"   - PDF: {pdf_path}")
+    print(f"   - Páginas: {data['paginas']}")
+    print(f"   - Preguntas: {data['numeroPreguntas']}")
+    print(f"   - Dificultad: {data['nivelDificultad']}")
+
+    # Validar si el archivo existe
+    print(f"📁 Verificando existencia del archivo: {pdf_path}")
+    print(f"   - ¿Existe? {os.path.exists(pdf_path)}")
+
     paginas = data["paginas"]
     numero_preguntas = data["numeroPreguntas"]
     dificultad = data["nivelDificultad"]
 
-    print("📥 Recibida solicitud para generar preguntas:")
-    print(f"   - PDF: {pdf_path}")
-    print(f"   - Páginas: {paginas}")
-    print(f"   - Preguntas: {numero_preguntas}")
-    print(f"   - Dificultad: {dificultad}")
+    try:
+        with open(pdf_path, "rb") as file:
+            class FileWrapper:
+                def __init__(self, file): self.file = file
+            texto = await extract_text_from_pdf(FileWrapper(file), paginas)
 
-    # Abrir el archivo desde el sistema
-    with open(pdf_path, "rb") as file:
-        class FileWrapper:
-            def __init__(self, file): self.file = file
-        texto = await extract_text_from_pdf(FileWrapper(file), paginas)
-    
-    print(f"📄 Texto extraído (primeros 200 caracteres): {texto[:200]}")
-    print(f"   - Longitud total del texto: {len(texto)} caracteres")
+        print(f"📄 Texto extraído (primeros 200 caracteres): {texto[:200]}")
+        print(f"   - Longitud total del texto: {len(texto)} caracteres")
+
+    except FileNotFoundError:
+        print(f"❌ El archivo PDF no se encontró: {pdf_path}")
+        raise HTTPException(status_code=404, detail="Archivo PDF no encontrado")
+    except Exception as e:
+        print(f"❌ Error al abrir o procesar el PDF: {str(e)}")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Error al procesar el PDF")
 
     # Lógica para generar preguntas usando texto + OpenAI...
     try:
