@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTheme } from "@/context/ThemeContext";
-import ThemeToggle from '@/components/common/ThemeToggle';
 import Navbar from '@/components/common/Navbar';
-import { Document, Page, pdfjs } from 'react-pdf';
+import { pdfjs } from 'react-pdf';
 import QuestionCountSelector from '@/components/select-pages/QuestionCountSelector';
 import DifficultySelector from '@/components/select-pages/DifficultySelector';
 import PDFViewer from '@/components/select-pages/PDFViewer';
