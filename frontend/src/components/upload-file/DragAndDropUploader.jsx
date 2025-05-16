@@ -39,6 +39,7 @@ export default function DragAndDropUploader({ onUploadSuccess, numeroPreguntas, 
 
       setUploadSuccess(true);
       setTimeout(() => {
+        localStorage.setItem("pdfUrl", data.pdfUrl); // Guardar URL completa
         onUploadSuccess(data.pdfUrl);
       }, 1500);
     } catch (error) {

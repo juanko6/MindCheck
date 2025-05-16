@@ -10,6 +10,13 @@ export default function PDFViewer({
   allSelected,
   zoom,
 }) {
+
+    // Validar que la URL sea absoluta (empiece con http) o completarla con la base API
+  const finalUrl = pdfUrl?.startsWith("http")
+    ? pdfUrl
+    : `${process.env.NEXT_PUBLIC_API_URL}${pdfUrl}`;
+
+  console.log("📄 URL PDF final usada:", finalUrl);
   return (
     <div className="w-full max-w-5xl mx-auto">
       <div className="flex justify-between items-center mb-2 px-2">
@@ -26,32 +33,36 @@ export default function PDFViewer({
 
       <div className="overflow-x-auto w-full px-2 bg-white dark:bg-gray-800 rounded-lg shadow-inner border border-gray-300 dark:border-gray-700">
 
-        <Document
-          file={`${process.env.NEXT_PUBLIC_API_URL}${pdfUrl}`}
-          onLoadSuccess={onLoadSuccess}
-        >
-          <div className="flex gap-4 py-4 w-fit">
-            {Array.from({ length: numPages }, (_, index) => {
-              const pageNum = index + 1;
-              const isSelected = selectedPages.includes(pageNum);
-              return (
-                <div
-                  key={pageNum}
-                  onClick={() => togglePageSelection(pageNum)}
-                  className={`flex flex-col items-center min-w-[120px] cursor-pointer transform transition
-                    ${isSelected ? "border-4 border-green-500 shadow-xl" : "border border-transparent"}
-                    hover:scale-105`}
-                >
-                  <Page
-                    pageNumber={pageNum}
-                    width={zoom}
-                    className="rounded"
-                  />
-                </div>
-              );
-            })}
-          </div>
-        </Document>
+        {finalUrl ? (
+          <Document
+            file={finalUrl}
+            onLoadSuccess={onLoadSuccess}
+          >
+            <div className="flex gap-4 py-4 w-fit">
+              {Array.from({ length: numPages }, (_, index) => {
+                const pageNum = index + 1;
+                const isSelected = selectedPages.includes(pageNum);
+                return (
+                  <div
+                    key={pageNum}
+                    onClick={() => togglePageSelection(pageNum)}
+                    className={`flex flex-col items-center min-w-[120px] cursor-pointer transform transition
+                      ${isSelected ? "border-4 border-green-500 shadow-xl" : "border border-transparent"}
+                      hover:scale-105`}
+                  >
+                    <Page
+                      pageNumber={pageNum}
+                      width={zoom}
+                      className="rounded"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </Document>
+        ) : (
+          <p className="text-center text-red-500 py-4">❌ No se pudo cargar el PDF.</p>
+        )}
       </div>
     </div>
   );
