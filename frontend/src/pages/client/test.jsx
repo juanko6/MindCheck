@@ -29,6 +29,14 @@ export default function TestPage() {
   const { darkMode } = useTheme();
 
   useEffect(() => {
+
+    // 🔐 Verificar si hay token de autenticación
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+    
     const fetchData = async () => {
       const stored = localStorage.getItem("questions");
   
