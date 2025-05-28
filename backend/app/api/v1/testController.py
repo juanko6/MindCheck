@@ -6,7 +6,8 @@ from fastapi import APIRouter, UploadFile, File, Request, Body, HTTPException
 from app.services.openai_service import generar_preguntas, generar_explicacion
 from app.services.pdf_reader import extract_text_from_pdf
 
-router = APIRouter()
+router = APIRouter(prefix="/api/v1/testController", tags=["test"])
+
 
 @router.post("/upload-pdf")
 async def upload_pdf(request: Request, file: UploadFile = File(...)):
@@ -65,7 +66,6 @@ async def generate_questions(data: dict = Body(...)):
         print("❌ Error al generar preguntas:", str(e))
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Error generando preguntas")
-
 
 @router.post("/explain")
 async def explain_mistake(request: Request):
