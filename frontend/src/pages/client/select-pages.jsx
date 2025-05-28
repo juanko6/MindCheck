@@ -26,6 +26,14 @@ export default function SelectPagesStep() {
 
 
   useEffect(() => {
+
+    // 🔐 Verificar si hay token de autenticación
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
     const pdf = localStorage.getItem('pdfUrl');
     const preguntas = localStorage.getItem('numeroPreguntas');
     const dificultad = localStorage.getItem('nivelDificultad');
