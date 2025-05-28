@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import pdf_routes
+from app.api.v1 import testController, auth, users
 
 app = FastAPI()
 
@@ -30,7 +30,10 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 
 # Registrar rutas
-app.include_router(pdf_routes.router)
+app.include_router(auth.router)
+app.include_router(testController.router)
+app.include_router(users.router)
+
 
 @app.get("/")
 async def root():
