@@ -3,8 +3,9 @@ import traceback
 from pathlib import Path
 from urllib.parse import unquote
 from fastapi import APIRouter, UploadFile, File, Request, Body, HTTPException
-from app.services.openai_service import generar_preguntas, generar_explicacion
+from app.services.openai_service import generar_explicacion
 from app.services.pdf_reader import extract_text_from_pdf
+from app.services.openai_service import generar_preguntas
 
 router = APIRouter(prefix="/api/v1/testController", tags=["test"])
 

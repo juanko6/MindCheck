@@ -7,6 +7,8 @@ import QuestionCountSelector from '@/components/select-pages/QuestionCountSelect
 import DifficultySelector from '@/components/select-pages/DifficultySelector';
 import PDFViewer from '@/components/select-pages/PDFViewer';
 import PageSelectionFooter from '@/components/select-pages/PageSelectionFooter';
+import { useAuth } from "@/context/AuthContext";
+import { generateTest } from "@/services/testService";
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -15,6 +17,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = '/pdf-worker/pdf.worker.min.mjs';
 export default function SelectPagesStep() {
   const router = useRouter();
   const { darkMode } = useTheme();
+  const { token, user } = useAuth();
 
   const [pdfUrl, setPdfUrl] = useState('');
   const [numeroPreguntas, setNumeroPreguntas] = useState(5);
@@ -24,20 +27,14 @@ export default function SelectPagesStep() {
   const [allSelected, setAllSelected] = useState(false);
   const [zoom, setZoom] = useState(100);
 
-
   useEffect(() => {
-
-    // 🔐 Verificar si hay token de autenticación
-    const token = localStorage.getItem("token");
-    if (!token) {
+    const authToken = localStorage.getItem("token");
+    if (!authToken) {
       router.push("/login");
       return;
     }
 
     const pdf = localStorage.getItem('pdfUrl');
-    const preguntas = localStorage.getItem('numeroPreguntas');
-    const dificultad = localStorage.getItem('nivelDificultad');
-
     if (!pdf) {
       alert("Faltan datos para continuar. Regresando al inicio.");
       router.push('/');
@@ -45,8 +42,6 @@ export default function SelectPagesStep() {
     }
 
     setPdfUrl(pdf);
-    setNumeroPreguntas(Number(preguntas) || 5);
-    setNivelDificultad(dificultad || "Modo Relax");
   }, []);
 
   const handleDocumentLoadSuccess = ({ numPages }) => {
@@ -62,45 +57,46 @@ export default function SelectPagesStep() {
   };
 
   const handleSelectAllPages = () => {
-  if (allSelected) {
-    setPaginasSeleccionadas([]);
-    setAllSelected(false);
-  } else {
-    const allPages = Array.from({ length: numPages }, (_, i) => i + 1);
-    setPaginasSeleccionadas(allPages);
-    setAllSelected(true);
-  }
-};
+    if (allSelected) {
+      setPaginasSeleccionadas([]);
+      setAllSelected(false);
+    } else {
+      const allPages = Array.from({ length: numPages }, (_, i) => i + 1);
+      setPaginasSeleccionadas(allPages);
+      setAllSelected(true);
+    }
+  };
 
-
-  const handleContinuar = () => {
+  const handleContinuar = async () => {
     if (paginasSeleccionadas.length === 0) {
       alert("Selecciona al menos una página para continuar.");
       return;
     }
 
-    const tokensUsuario = parseInt(localStorage.getItem("userTokens")) || 0;
     const costo = paginasSeleccionadas.length * 10;
-    
-    if (tokensUsuario  < costo) {
-      alert(`No tienes suficientes tokens. Necesitas ${costo}, pero tienes ${tokensUsuario }.`);
+
+    if (!user || user.tokens < costo) {
+      alert(`No tienes suficientes tokens. Necesitas ${costo}, pero tienes ${user?.tokens || 0}.`);
       return;
     }
 
-    // Descontar tokens
-    const nuevosTokens = tokensUsuario - costo;
-    localStorage.setItem("userTokens", nuevosTokens.toString());
-    localStorage.setItem("tokensDisponibles", nuevosTokens.toString());
-    localStorage.setItem("tokensConsumidos", costo.toString());
+    try {
+      const response = await generateTest({
+        pdf_url: pdfUrl,
+        paginas: paginasSeleccionadas,
+        numero_preguntas: numeroPreguntas,
+        dificultad: nivelDificultad,
+      }, token);
+      console.log("Enviando token:", token);
 
-  
-    // Guardar parámetros del test
-    localStorage.setItem("pdfUrl", pdfUrl);
-    localStorage.setItem("paginasSeleccionadas", paginasSeleccionadas.join(','));
-    localStorage.setItem("numeroPreguntas", numeroPreguntas);
-    localStorage.setItem("nivelDificultad", nivelDificultad);
+      const testId = response.testId;
 
-    router.push("/test"); // Navega inmediatamente
+
+      router.push(`/client/test?testId=${testId}`);
+    } catch (error) {
+      console.error("Error generando test:", error);
+      alert("Ocurrió un error al generar el test. Intenta nuevamente.");
+    }
   };
 
   const handleCancelar = () => {
@@ -113,10 +109,6 @@ export default function SelectPagesStep() {
       <Navbar />
 
       <h1 className="mt-20 text-3xl font-bold mb-4 text-center">Selecciona las páginas del PDF 📄</h1>
-
-      {/*       <p className="mb-2"><strong>PDF:</strong> <code className="break-all">{pdfUrl}</code></p>
-      <p className="mb-1"><strong>Número de preguntas:</strong> {numeroPreguntas}</p>
-      <p className="mb-4"><strong>Dificultad:</strong> {nivelDificultad}</p> */}
 
       <QuestionCountSelector 
         value={numeroPreguntas} 
@@ -160,6 +152,5 @@ export default function SelectPagesStep() {
         onContinue={handleContinuar}
       />
     </div>
-
   );
 }

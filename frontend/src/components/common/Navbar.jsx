@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import ThemeToggle from "@/components/common/ThemeToggle";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar() {
-  const [tokens, setTokens] = useState(0);
+  const { user } = useAuth(); // ✅ obtén el usuario
+  const tokens = user?.tokens ?? 0; // Fallback si no hay usuario aún
 
-  useEffect(() => {
-    const stored = localStorage.getItem("userTokens");
-    setTokens(parseInt(stored) || 0);
-  }, []);
+
 
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">

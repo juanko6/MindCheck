@@ -1,6 +1,10 @@
 from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import relationship
 from app.db.database import Base
+from app.models.test import Test  # ✅ aseguramos que Test está definido antes
+
+
+
 
 class User(Base):
     __tablename__ = "users"

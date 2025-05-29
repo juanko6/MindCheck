@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1 import testController, auth, users
+from app.api.v1 import testController, auth, users, tests
 
 app = FastAPI()
 
@@ -33,6 +33,8 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 app.include_router(auth.router)
 app.include_router(testController.router)
 app.include_router(users.router)
+app.include_router(tests.router)
+
 
 
 @app.get("/")

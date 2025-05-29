@@ -5,9 +5,9 @@ import PreguntaCard from "@/components/test/PreguntaCard";
 import ResultCard from "@/components/test/ResultCard";
 import { useTheme } from "@/context/ThemeContext";
 import { getExplanation } from "@/services/api";
-import { generateQuestionsFromPdf } from "@/services/api";
 import TestSkeletonLoader from "@/components/test/SkeletonLoader";
-
+import { getTestById } from "@/services/testService";
+import { useAuth } from "@/context/AuthContext";
 
 
 export default function TestPage() {
@@ -22,74 +22,45 @@ export default function TestPage() {
   const [mensajeReinicio, setMensajeReinicio] = useState("");
   const [esperandoFeedback, setEsperandoFeedback] = useState(false);
 
-  const [tokens, setTokens] = useState(0); // Tokens basados en páginas seleccionadas
   const [respuestasUsuario, setRespuestasUsuario] = useState([]);
 
   const router = useRouter();
   const { darkMode } = useTheme();
+  const { token } = useAuth();
 
-  useEffect(() => {
-
-    // 🔐 Verificar si hay token de autenticación
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-    
+   useEffect(() => {
     const fetchData = async () => {
-      const stored = localStorage.getItem("questions");
-  
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setQuestions(parsed.preguntas || []);
-        setCurrentIndex(parseInt(localStorage.getItem("currentIndex")) || 0);
-        setLoading(false);
+      if (!token) {
+        router.push("/login");
         return;
       }
-  
-      // Si no hay preguntas, generarlas ahora
-      const pdfUrl = localStorage.getItem("pdfUrl");
-      const paginas = localStorage.getItem("paginasSeleccionadas");
-      const numeroPreguntas = localStorage.getItem("numeroPreguntas");
-      const nivelDificultad = localStorage.getItem("nivelDificultad");
-  
-      if (!pdfUrl || !paginas || !numeroPreguntas || !nivelDificultad) {
-        alert("Faltan datos. Redirigiendo...");
+
+      const testId = new URLSearchParams(window.location.search).get("testId");
+      if (!testId) {
+        alert("Test no encontrado.");
         router.push("/");
         return;
       }
-  
-      try {
-        const result = await generateQuestionsFromPdf(
-          pdfUrl,
-          paginas,
-          parseInt(numeroPreguntas),
-          nivelDificultad
-        );
-  
-        if (!result.preguntas || result.preguntas.length === 0) {
-          alert("No se pudieron generar preguntas.");
-          router.push("/");
-          return;
-        }
-  
-        localStorage.setItem("questions", JSON.stringify(result));
-        localStorage.setItem("currentIndex", "0");
 
-        setQuestions(result.preguntas);
+      try {
+        const data = await getTestById(testId, token);
+        if (!data.preguntas || data.preguntas.length === 0) {
+          throw new Error("Test inválido");
+        }
+
+        setQuestions(data.preguntas);
         setCurrentIndex(0);
       } catch (e) {
-        alert("Error generando preguntas");
+        console.error("Error cargando test:", e);
+        alert("Error al cargar el test.");
         router.push("/");
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchData();
-  }, []);
-  
+  }, [token]);
   
 
   const handleSendAnswer = async () => {
@@ -159,9 +130,7 @@ export default function TestPage() {
     setSelectedOption(null);
     setFeedback("");
     setIsCorrect(null);
-    const newIndex = currentIndex + 1;
-    setCurrentIndex(newIndex);
-    localStorage.setItem("currentIndex", newIndex.toString());
+    setCurrentIndex((prev) => prev + 1);
   };
 
 
@@ -172,7 +141,6 @@ export default function TestPage() {
     setIsCorrect(null);
     setShowModal(false);
     setRespuestasUsuario([]);
-    localStorage.setItem("currentIndex", "0");
 
     setMensajeReinicio("¡Test reiniciado con éxito!");
     setTimeout(() => setMensajeReinicio(""), 2500);
@@ -253,14 +221,10 @@ export default function TestPage() {
       </button>
 
       <button
-        onClick={() => {
-          localStorage.clear();
-          localStorage.setItem("userTokens", tokens);
-          router.push("/");
-        }}
+        onClick={() => router.push("/")}
         className="mt-4 w-full max-w-xl bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
       >
-        Reiniciar Test
+        Finalizar Test
       </button>
 
       {showModal && (
