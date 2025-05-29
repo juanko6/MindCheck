@@ -8,6 +8,7 @@ import { getExplanation } from "@/services/api";
 import TestSkeletonLoader from "@/components/test/SkeletonLoader";
 import { getTestById } from "@/services/testService";
 import { useAuth } from "@/context/AuthContext";
+import { submitTestResult } from "@/services/testService";
 
 
 export default function TestPage() {
@@ -21,6 +22,7 @@ export default function TestPage() {
   const [enviandoRespuesta, setEnviandoRespuesta] = useState(false);
   const [mensajeReinicio, setMensajeReinicio] = useState("");
   const [esperandoFeedback, setEsperandoFeedback] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const [respuestasUsuario, setRespuestasUsuario] = useState([]);
 
@@ -35,7 +37,9 @@ export default function TestPage() {
         return;
       }
 
-      const testId = new URLSearchParams(window.location.search).get("testId");
+      
+
+    const testId = new URLSearchParams(window.location.search).get("testId");
       if (!testId) {
         alert("Test no encontrado.");
         router.push("/");
@@ -62,6 +66,35 @@ export default function TestPage() {
     fetchData();
   }, [token]);
   
+
+useEffect(() => {
+  const testId = new URLSearchParams(window.location.search).get("testId");
+  const total = questions.length;
+  const correctas = respuestasUsuario.filter((r) => r.fueCorrecta).length;
+  const porcentaje = Math.round((correctas / total) * 100);
+
+  // ✅ Solo enviar si se ha terminado el test y hay respuestas
+  if (
+    testId &&
+    total > 0 &&
+    respuestasUsuario.length === total &&
+    !hasSubmitted
+  ) {
+    const enviar = async () => {
+      try {
+        await submitTestResult(testId, respuestasUsuario, porcentaje, token);
+        console.log("✅ Resultado del test guardado");
+        setHasSubmitted(true);
+      } catch (err) {
+        console.error("❌ No se pudo guardar el resultado:", err);
+      }
+    };
+
+    enviar();
+  }
+}, [respuestasUsuario, questions, hasSubmitted]);
+
+
 
   const handleSendAnswer = async () => {
     if (selectedOption === null || selectedOption === undefined || enviandoRespuesta) return;

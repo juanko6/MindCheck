@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from pydantic import BaseModel
 from typing import List, Any
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +7,7 @@ from app.models.user import User
 from app.services.test_service import create_test, get_test_by_id, get_user_tests
 from app.services.openai_service import generar_preguntas_desde_pdf
 from app.services.token_service import descontar_tokens_usuario
+from app.services.test_result_service import submit_test_result
 
 router = APIRouter(prefix="/api/v1/tests", tags=["tests"])
 
@@ -63,3 +64,23 @@ async def get_test(
 @router.get("/")
 async def list_user_tests(db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
     return await get_user_tests(user_id=user.id, db=db)
+
+
+class SubmitResultDTO(BaseModel):
+    respuestas: list  # Lista de objetos con pregunta, seleccionada, correcta, etc.
+    porcentaje: int
+
+@router.post("/{test_id}/submit")
+async def submit_test_result_endpoint(
+    test_id: int,
+    payload: SubmitResultDTO,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    return await submit_test_result(
+        user_id=user.id,
+        test_id=test_id,
+        respuestas=payload.respuestas,
+        porcentaje=payload.porcentaje,
+        db=db
+    )
