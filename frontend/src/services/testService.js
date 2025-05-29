@@ -74,11 +74,20 @@ export async function submitTestResult(testId, respuestas, porcentaje, token) {
 
 export async function fetchTestHistory(token) {
   const res = await fetch(`${API}/history`, {
+    method: "GET",
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${token}`, 
+      "Content-Type": "application/json",
     },
   });
 
-  if (!res.ok) throw new Error("No se pudo cargar el historial de tests");
-  return res.json(); // Devuelve lista [{ id, title, created_at, porcentaje }]
+  if (!res.ok) {
+    console.error("Status:", res.status);
+    const errorText = await res.text();
+    console.error("Response:", errorText);
+    throw new Error("No se pudo cargar el historial de tests");
+  }
+
+  return res.json();
 }
+
