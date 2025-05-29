@@ -8,6 +8,8 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const router = useRouter();
 
     const fetchUser = async (token) => {
@@ -29,7 +31,9 @@ export const AuthProvider = ({ children }) => {
     const storedToken = localStorage.getItem("token");
     if (storedToken) {
       setToken(storedToken);
-      fetchUser(storedToken);
+      fetchUser(storedToken).finally(() => setLoading(false));
+    } else {
+      setLoading(false);
     }
   }, []);
 
@@ -57,7 +61,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ token, user, login, register, logout }}>
+    <AuthContext.Provider value={{ token, user, login, register, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -50,6 +50,7 @@ coverage/
 htmlcov/
 *.sqlite3
 *.db
+*.pdf
 
 # Git
 *.orig

@@ -18,53 +18,45 @@ export default function TestPage() {
   const [feedback, setFeedback] = useState("");
   const [isCorrect, setIsCorrect] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [enviandoRespuesta, setEnviandoRespuesta] = useState(false);
   const [mensajeReinicio, setMensajeReinicio] = useState("");
   const [esperandoFeedback, setEsperandoFeedback] = useState(false);
-  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [loading, setLoading] = useState(true);
 
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const { query } = useRouter();
   const [respuestasUsuario, setRespuestasUsuario] = useState([]);
 
   const router = useRouter();
   const { darkMode } = useTheme();
-  const { token } = useAuth();
+  const { token, user, loading:authLoading } = useAuth();
 
-   useEffect(() => {
-    const fetchData = async () => {
-      if (!token) {
-        router.push("/login");
-        return;
+useEffect(() => {
+  const fetchData = async () => {
+    if (!token || !user || authLoading) return <TestSkeletonLoader darkMode={darkMode} />;
+
+    const { testId } = router.query;
+    if (!testId) return;
+
+    try {
+      const data = await getTestById(testId, token);
+      if (!data.preguntas || data.preguntas.length === 0) {
+        throw new Error("Test inválido");
       }
 
-      
+      setQuestions(data.preguntas);
+      setCurrentIndex(0);
+    } catch (e) {
+      console.error("Error cargando test:", e);
+      alert("Error al cargar el test.");
+      router.push("/");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const testId = new URLSearchParams(window.location.search).get("testId");
-      if (!testId) {
-        alert("Test no encontrado.");
-        router.push("/");
-        return;
-      }
-
-      try {
-        const data = await getTestById(testId, token);
-        if (!data.preguntas || data.preguntas.length === 0) {
-          throw new Error("Test inválido");
-        }
-
-        setQuestions(data.preguntas);
-        setCurrentIndex(0);
-      } catch (e) {
-        console.error("Error cargando test:", e);
-        alert("Error al cargar el test.");
-        router.push("/");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [token]);
+  fetchData();
+}, [token, user, authLoading, router.query]);
   
 
 useEffect(() => {
@@ -182,6 +174,11 @@ useEffect(() => {
 
 
   if (loading) return <TestSkeletonLoader darkMode={darkMode} />;
+
+  if (!token || !user) {
+  router.push("/login");
+  return null;
+}
 
   if (!questions.length) {
     return <p className="animate-fadeSlideIn text-center mt-10 text-red-500">❌ No se encontraron preguntas. Volviendo al inicio...</p>;

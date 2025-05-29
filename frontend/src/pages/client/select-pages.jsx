@@ -17,7 +17,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = '/pdf-worker/pdf.worker.min.mjs';
 export default function SelectPagesStep() {
   const router = useRouter();
   const { darkMode } = useTheme();
-  const { token, user } = useAuth();
+  const { token, user, loading } = useAuth();
 
   const [pdfUrl, setPdfUrl] = useState('');
   const [numeroPreguntas, setNumeroPreguntas] = useState(5);
@@ -28,8 +28,7 @@ export default function SelectPagesStep() {
   const [zoom, setZoom] = useState(100);
 
   useEffect(() => {
-    const authToken = localStorage.getItem("token");
-    if (!authToken) {
+    if (!loading && !token) {
       router.push("/login");
       return;
     }
@@ -42,7 +41,7 @@ export default function SelectPagesStep() {
     }
 
     setPdfUrl(pdf);
-  }, []);
+  }, [loading, token]);
 
   const handleDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
@@ -102,6 +101,10 @@ export default function SelectPagesStep() {
   const handleCancelar = () => {
     router.push('/');
   };
+
+  if (loading || !token || !user) {
+    return <div className="text-white text-center mt-10">Cargando...</div>;
+  }
 
   return (
     <div className={`min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-500
