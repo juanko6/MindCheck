@@ -1,9 +1,37 @@
 import json
-from app.config import OPENAI_API_KEY
-from openai import OpenAI
 import re
+import fitz  # PyMuPDF
+from urllib.parse import unquote
+from pathlib import PurePath
+from pathlib import Path
+from openai import OpenAI
+from app.config import OPENAI_API_KEY
 
 client = OpenAI(api_key=OPENAI_API_KEY)
+
+UPLOADS_PATH = Path("uploads")  # Ajusta si tu ruta de carga es diferente
+
+async def generar_preguntas_desde_pdf(pdf_url: str, paginas: list, cantidad: int, dificultad: str):
+    """
+    Extrae texto desde las páginas seleccionadas del PDF y genera preguntas con IA.
+    """
+    filename = PurePath(unquote(pdf_url)).name
+    pdf_path = UPLOADS_PATH / filename
+    if not pdf_path.exists():
+        raise FileNotFoundError(f"PDF no encontrado en: {pdf_path}")
+
+    texto_total = ""
+    try:
+        doc = fitz.open(pdf_path)
+        for num in paginas:
+            page_index = int(num) - 1  # fitz usa 0-based
+            if 0 <= page_index < len(doc):
+                texto_total += doc[page_index].get_text()
+    except Exception as e:
+        print("❌ Error leyendo PDF:", e)
+        raise ValueError("Error al procesar el PDF")
+
+    return await generar_preguntas(texto_total, numero_preguntas=cantidad, nivel_dificultad=dificultad)
 
 async def generar_preguntas(texto, numero_preguntas=5, nivel_dificultad="Modo Relax"):
     if not texto or len(texto.strip()) < 300:
@@ -17,7 +45,7 @@ async def generar_preguntas(texto, numero_preguntas=5, nivel_dificultad="Modo Re
     if len(solo_texto) < 100:
         raise ValueError("El contenido parece no ser texto académico.")
 
-    texto = texto[:12000]
+    texto = texto[:12000]  # Limitar longitud para prompt
 
     prompt = f"""
 A partir del siguiente texto académico, genera un ARRAY JSON con {numero_preguntas} preguntas de selección múltiple.
@@ -39,7 +67,6 @@ IMPORTANTE:
 - SOLO devuelve el array JSON.
 - No pongas ``` ni comentarios.
 - No pongas texto adicional.
-
 
 Texto:
 {texto}
@@ -66,7 +93,6 @@ Texto:
     try:
         preguntas = json.loads(preguntas_json)
 
-        # ✅ Desanidar si ya vino doble
         if isinstance(preguntas, dict) and "preguntas" in preguntas:
             preguntas = preguntas["preguntas"]
 

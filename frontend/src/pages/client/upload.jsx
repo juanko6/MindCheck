@@ -23,11 +23,6 @@ export default function UploaderPage() {
       return;
     }
 
-
-    const tokensExist = localStorage.getItem("userTokens");
-    if (!tokensExist) {
-      localStorage.setItem("userTokens", "300");
-    }
     const timeout = setTimeout(() => {
       setLoading(false);
     }, 2000);
@@ -37,7 +32,7 @@ export default function UploaderPage() {
   const handleUploadSuccess = (pdfUrl) => {
     localStorage.setItem('pdfUrl', pdfUrl);
     localStorage.setItem('currentIndex', '0');
-    router.push('/select-pages')
+    router.push('/client/select-pages')
   };
 
   if (loading) return <CircularLoader />;

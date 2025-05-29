@@ -1,0 +1,50 @@
+const API = process.env.NEXT_PUBLIC_API_URL + "/tests";
+
+export async function saveTest(token, title, data) {
+  const res = await fetch(API, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ title, data }),
+  });
+
+  if (!res.ok) throw new Error("Error al guardar el test");
+  return res.json();
+}
+
+
+/**
+ * Genera un test completo desde el backend a partir del PDF.
+ * @param {Object} datos - { pdf_url, paginas, numero_preguntas, dificultad }
+ * @param {string} token - Token JWT
+ */
+export async function generateTest(datos, token) {
+  const res = await fetch(`${API}/generate`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(datos),
+  });
+
+  if (!res.ok) throw new Error("Error al generar el test");
+  return res.json(); // { testId: 123 }
+}
+
+/**
+ * Obtiene un test por su ID.
+ */
+export async function getTestById(testId, token) {
+  const res = await fetch(`${API}/${testId}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) throw new Error("No se pudo cargar el test");
+  return res.json(); // { preguntas: [...] }
+}

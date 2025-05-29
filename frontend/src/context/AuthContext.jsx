@@ -4,15 +4,32 @@ import { login as loginAPI, register as registerAPI } from "../services/authServ
 
 const AuthContext = createContext();
 
+
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
   const router = useRouter();
 
+    const fetchUser = async (token) => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      setUser(data);
+    } catch (error) {
+      console.error("Error cargando usuario:", error);
+      setUser(null);
+    }
+  };
+
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     if (storedToken) {
       setToken(storedToken);
+      fetchUser(storedToken);
     }
   }, []);
 
@@ -20,6 +37,7 @@ export const AuthProvider = ({ children }) => {
     const data = await loginAPI(email, password);
     localStorage.setItem("token", data.access_token);
     setToken(data.access_token);
+    await fetchUser(data.access_token);
     router.push("/dashboard");
   };
 
@@ -27,6 +45,7 @@ export const AuthProvider = ({ children }) => {
     const data = await registerAPI(email, password);
     localStorage.setItem("token", data.access_token);
     setToken(data.access_token);
+    await fetchUser(data.access_token);
     router.push("/dashboard");
   };
 

@@ -32,7 +32,7 @@ export default function Dashboard() {
         <h1 className="text-3xl font-bold">Bienvenido a MindCheck 🎓</h1>
         <div className="flex items-center gap-4">
           <span className="bg-yellow-400 text-black font-semibold py-1 px-3 rounded-full">
-            🪙 Tokens: 300 {userData.tokens}
+            🪙 Tokens: {userData.tokens}
           </span>
           <button
             onClick={logout}
