@@ -2,6 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, Body
 from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Any
+from typing import Optional
+from sqlalchemy import select
+from sqlalchemy.orm import aliased
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.core.oauth import get_current_user, get_db
@@ -14,6 +17,41 @@ from app.services.token_service import descontar_tokens_usuario
 from app.services.test_result_service import submit_test_result
 
 router = APIRouter(prefix="/api/v1/tests", tags=["tests"])
+
+class TestHistoryResponse(BaseModel):
+    id: int
+    title: str
+    created_at: datetime
+    porcentaje: Optional[int] = None
+
+@router.get("/history", response_model=List[TestHistoryResponse])
+async def get_test_history(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    query = (
+        select(
+            TestResult.id,
+            Test.title,
+            TestResult.created_at,   # 🟢 usamos created_at de TestResult
+            TestResult.porcentaje
+        )
+        .join(Test, Test.id == TestResult.test_id)  # 🛠 JOIN explícito y correcto
+        .where(TestResult.user_id == current_user.id)
+        .order_by(TestResult.created_at.desc())     # 🟢 orden del más reciente al más antiguo
+    )
+    result = await db.execute(query)
+    records = result.all()
+    
+    return [
+        {
+            "id": id_,
+            "title": title,
+            "created_at": created_at,
+            "porcentaje": porcentaje
+        }
+        for id_, title, created_at, porcentaje in records
+    ]
 
 class GenerateTestDTO(BaseModel):
     pdf_url: str
@@ -88,36 +126,3 @@ async def submit_test_result_endpoint(
         porcentaje=payload.porcentaje,
         db=db
     )
-
-class TestHistoryResponse(BaseModel):
-    id: int
-    title: str
-    created_at: datetime
-    porcentaje: int
-
-@router.get("/history", response_model=List[TestHistoryResponse])
-async def get_test_history(
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    query = (
-        select(TestResult, Test.title, Test.created_at)
-        .join(Test)
-        .where(TestResult.user_id == current_user.id)
-        .order_by(TestResult.created_at.desc())
-    )
-    result = await db.execute(query)
-    records = result.all()
-
-    for tr, title, created_at in records:
-        print(">>> Registro:", tr.id, title, created_at, tr.porcentaje)
-
-    return [
-        {
-            "id": tr.id,
-            "title": title,
-            "created_at": created_at,
-            "porcentaje": tr.porcentaje
-        }
-        for tr, title, created_at in records
-    ]

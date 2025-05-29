@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/router";
-import { fetchUserTests } from "@/services/testService";
+import { fetchTestHistory  } from "@/services/testService";
 
 
 export default function TestHistory() {
@@ -20,8 +20,12 @@ export default function TestHistory() {
 
     const loadTests = async () => {
         try {
-        const data = await fetchUserTests(token);
-        setTests(data);
+        const data = await fetchTestHistory(token);
+        console.log("Tests recibidos:", data); 
+        const sortedData = data
+        .filter((test) => test.created_at)
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        setTests(sortedData);
         } catch (err) {
         console.error("Error al cargar los tests:", err);
         }
@@ -38,7 +42,7 @@ export default function TestHistory() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center">🕓 Historial de Tests</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">🕓 Historial de Resultados</h1>
 
       {tests.length === 0 ? (
         <p className="text-center mt-10 text-gray-400">Aún no has realizado ningún test.</p>
@@ -50,7 +54,11 @@ export default function TestHistory() {
               <div key={test.id} className="bg-gray-800 p-4 rounded-lg shadow-md">
                 <p className="text-sm text-gray-400">{new Date(test.created_at).toLocaleString()}</p>
                 <h2 className="text-lg font-semibold mt-1">{test.title}</h2>
-                <p className="text-green-400 mt-2">✅ {test.porcentaje}%</p>
+                
+                {typeof test.porcentaje === "number" && (
+                  <p className="text-green-400 mt-2">✅ {test.porcentaje}%</p>
+                )}
+
                 <button
                   onClick={() => router.push(`/client/test?testId=${test.test_id}`)}
                   className="mt-3 bg-blue-600 hover:bg-blue-700 text-white py-1 px-4 rounded"

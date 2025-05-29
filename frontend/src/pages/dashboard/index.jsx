@@ -66,7 +66,7 @@ export default function Dashboard() {
             onClick={() => router.push("/dashboard/story")}
             className="bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded"
           >
-            Ver test anteriores
+            Ver Resultados anteriores
           </button>
         </div>
       </section>
