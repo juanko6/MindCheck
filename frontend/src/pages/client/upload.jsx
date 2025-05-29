@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Navbar from '@/components/common/Navbar';
 import DragAndDropUploader from '@/components/upload-file/DragAndDropUploader';
 import { useTheme } from "@/context/ThemeContext";
 import CircularLoader from "@/components/common/CircularLoader";
+import { useAuth } from "@/context/AuthContext";
 
 
 
@@ -12,22 +13,13 @@ export default function UploaderPage() {
 
   const router = useRouter();
   const { darkMode } = useTheme();
-  const [loading, setLoading] = useState(true);
+  const { token, loading } = useAuth();
 
-  useEffect(() => {
-
-    // ⛔ Redirigir si no hay token de autenticación
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
-    const timeout = setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-    return () => clearTimeout(timeout);
-  }, []);
+useEffect(() => {
+  if (!loading && !token) {
+    router.push("/login");
+  }
+}, [loading, token]);
 
   const handleUploadSuccess = (pdfUrl) => {
     localStorage.setItem('pdfUrl', pdfUrl);
@@ -35,7 +27,7 @@ export default function UploaderPage() {
     router.push('/client/select-pages')
   };
 
-  if (loading) return <CircularLoader />;
+  if (loading || !token) return <CircularLoader />;
 
   return (
     <div className={`min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-500

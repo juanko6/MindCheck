@@ -5,28 +5,30 @@ import { fetchUserTests } from "@/services/testService";
 import { fetchUserData } from "@/services/userService";
 
 export default function Dashboard() {
-  const { token, logout } = useAuth();
+  const { token, logout, loading } = useAuth();
   const [userData, setUserData] = useState(null);
   const [tests, setTests] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
-    if (!token) {
+    if (!loading && !token) {
       router.push("/login");
-    } else {
-      // 🔄 Cargar datos del usuario
+    }
+  }, [loading, token]);
+
+  useEffect(() => {
+    if (token) {
       fetchUserData(token)
         .then(setUserData)
         .catch(() => logout());
 
-      // 🔄 Cargar tests del usuario
       fetchUserTests(token)
         .then(setTests)
         .catch((e) => console.error("Error cargando tests:", e));
     }
   }, [token]);
 
-  if (!userData) return <div className="text-white text-center mt-10">Cargando...</div>;
+  if (loading || !userData) return <div className="text-white text-center mt-10">Cargando...</div>;
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
