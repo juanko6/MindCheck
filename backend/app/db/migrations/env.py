@@ -10,7 +10,7 @@ from sqlalchemy import pool
 from alembic import context
 
 from app.db.database import Base
-from app.models import user, test  # importar modelos aquí
+from app.models import user, test, test_result  # importar modelos aquí
 
 
 

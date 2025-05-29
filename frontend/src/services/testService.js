@@ -48,3 +48,26 @@ export async function getTestById(testId, token) {
   if (!res.ok) throw new Error("No se pudo cargar el test");
   return res.json(); // { preguntas: [...] }
 }
+
+export async function fetchUserTests(token) {
+  const res = await fetch(`${API}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) throw new Error("No se pudieron cargar los tests");
+  return res.json(); // Array de tests
+}
+
+export async function submitTestResult(testId, respuestas, porcentaje, token) {
+  const res = await fetch(`${API}/${testId}/submit`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ respuestas, porcentaje }),
+  });
+
+  if (!res.ok) throw new Error("Error al enviar resultado");
+  return res.json();
+}

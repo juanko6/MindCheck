@@ -36,7 +36,6 @@ app.include_router(users.router)
 app.include_router(tests.router)
 
 
-
 @app.get("/")
 async def root():
     return {"message": "Servidor funcionando 🚀"}

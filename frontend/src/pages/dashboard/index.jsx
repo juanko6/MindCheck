@@ -1,26 +1,28 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "../../context/AuthContext";
+import { fetchUserTests } from "@/services/testService";
+import { fetchUserData } from "@/services/userService";
 
 export default function Dashboard() {
   const { token, logout } = useAuth();
   const [userData, setUserData] = useState(null);
+  const [tests, setTests] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
     if (!token) {
       router.push("/login");
     } else {
-      fetch("http://localhost:8000/api/v1/users/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((res) => res.json())
+      // 🔄 Cargar datos del usuario
+      fetchUserData(token)
         .then(setUserData)
-        .catch(() => {
-          logout();
-        });
+        .catch(() => logout());
+
+      // 🔄 Cargar tests del usuario
+      fetchUserTests(token)
+        .then(setTests)
+        .catch((e) => console.error("Error cargando tests:", e));
     }
   }, [token]);
 
@@ -59,12 +61,40 @@ export default function Dashboard() {
             Crear nuevo test
           </button>
           <button
-            onClick={() => router.push("story")}
+            onClick={() => router.push("/dashboard/story")}
             className="bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded"
           >
             Ver test anteriores
           </button>
         </div>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="text-xl font-semibold mb-4">📚 Historial de Tests</h2>
+        {tests.length === 0 ? (
+          <p className="text-gray-400">No has generado ningún test todavía.</p>
+        ) : (
+          <ul className="space-y-4">
+            {tests.map((test) => (
+              <li key={test.id} className="bg-gray-700 p-4 rounded shadow">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="font-semibold text-lg">{test.title}</p>
+                    <p className="text-sm text-gray-300">
+                      Fecha: {new Date(test.created_at).toLocaleString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => router.push(`/client/test?testId=${test.id}`)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                  >
+                    Ver test
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </div>
   );
