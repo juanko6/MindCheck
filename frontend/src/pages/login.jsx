@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/router";
+import Image from "next/image";
+import Link from "next/link"
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -20,43 +22,71 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-      <div className="bg-gray-800 p-8 rounded-xl shadow-xl w-full max-w-md">
-        <h2 className="text-3xl font-bold text-center mb-6 text-blue-400">Iniciar Sesión</h2>
-        {error && <p className="bg-red-500 text-white text-center p-2 rounded mb-4">{error}</p>}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Correo institucional"
-            className="w-full p-3 rounded bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            className="w-full p-3 rounded bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+    <div className="min-h-screen bg-[#F1F3F9] flex items-center justify-center px-4">
+      <div className="flex flex-col md:flex-row w-full max-w-md md:max-w-4xl rounded-2xl overflow-hidden shadow-lg bg-white">
+        {/* Logo */}
+        <Link href="/" className="w-full md:w-1/3 bg-white border-b md:border-b-0 md:border-r border-[#BDC6D3] flex items-center justify-center p-8 md:p-12 rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none">
+          <div className="w-40 md:w-60 cursor-pointer">
+            <Image
+              src="/assets/logo-mindcheck.png"
+              alt="MindCheck Logo"
+              layout="responsive"
+              width={220}
+              height={220}
+              priority
+            />
+          </div>
+        </Link>
+
+        {/* Formulario */}
+        <div className="w-full md:w-2/3 bg-[#909DB1] p-6 md:p-10 flex flex-col justify-center rounded-b-2xl md:rounded-r-2xl md:rounded-bl-none">
+          <h2 className="text-xl md:text-2xl font-bold text-center mb-6 text-gray-900">
+            Iniciar Sesión
+          </h2>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="email"
+              placeholder="Correo Institucional"
+              className="w-full p-3 rounded border-2 border-dashed border-gray-400 bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Contraseña"
+              className="w-full p-3 rounded border-2 border-dashed border-gray-400 bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="submit"
+              className="w-full bg-[#2D77F5] hover:bg-blue-600 text-white py-3 rounded font-semibold border border-blue-800 shadow-sm transition"
+            >
+              Entrar
+            </button>
+          </form>
+
           <button
-            type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded font-semibold"
+            onClick={() => alert("Login con Google aún no implementado")}
+            className="mt-4 w-full flex items-center justify-center gap-2 bg-[#D0D5DC] hover:bg-gray-300 text-black py-3 px-4 rounded shadow-sm"
           >
-            Entrar
+            <Image src="/assets/google-icon.png" alt="Google" width={20} height={20} />
+            Inicia sesión con Google
           </button>
-        </form>
-        <p className="mt-4 text-center text-sm text-gray-400">
-          ¿No tienes cuenta?{" "}
-          <span
-            onClick={() => router.push("/register")}
-            className="text-blue-400 hover:underline cursor-pointer"
-          >
-            Regístrate
-          </span>
-        </p>
+
+          <p className="mt-4 text-center text-sm text-black">
+            ¿No tienes cuenta?{" "}
+            <span
+              onClick={() => router.push("/register")}
+              className="text-blue-700 hover:underline cursor-pointer"
+            >
+              Regístrate
+            </span>
+          </p>
+        </div>
       </div>
     </div>
   );
