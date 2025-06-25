@@ -7,6 +7,7 @@ export default function DashedButton({
   className = "",
   onClick,
   withBorder = true,
+  fullWidth = false,
 }) {
 
     const innerButton = (
@@ -18,8 +19,12 @@ export default function DashedButton({
     </button>
   );
 
+  const borderClass = `border-[5px] border-dashed border-gray-400 rounded-xl ${
+    fullWidth ? "w-full" : "inline-block"
+  }`;
+
   return withBorder ? (
-    <div className="inline-block border-[5px] border-dashed border-gray-400 rounded-xl">
+    <div className={borderClass}>
       {innerButton}
     </div>
   ) : (
