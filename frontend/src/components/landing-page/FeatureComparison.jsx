@@ -32,13 +32,13 @@ export default function FeatureComparison() {
 
   return (
     <section className="w-full bg-gray-50 py-16 px-4">
-        <div className="max-w-screen-xl mx-auto pl-30 pr-30">
+        <div className="max-w-screen-xl mx-auto pl-5 pr-5 md:pl-30 md:pr-30">
             <div className="flex flex-col md:flex-row md:items-baseline md:gap-4 mb-10">
-            <h3 className="text-left text-2xl md:text-3xl font-light whitespace-nowrap">
+            <h3 className="text-left text-3xl rubik-light-italic mb-2 text-gray-800 mr-20">
                 <span className="rubik-light-italic">¿Qué nos hace</span>{' '}
                 <span className="rubik-semibold">diferentes?</span>
             </h3>
-            <p className="text-left text-sm md:text-base text-gray-600 md:ml-4 rubik-light md:mt-1">
+            <p className="text-left rubik-light text-[17px] text-gray-600 mt-2">
                 Porque no es solo un test. Es una <br />experiencia de aprendizaje personalizada.
             </p>
             </div>

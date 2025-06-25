@@ -41,11 +41,14 @@ export default function CopyWow() {
           disableOnInteraction: false,
           pauseOnMouseEnter: true,
         }}
-        className="w-full max-w-4xl h-[140px]"
+        className="w-full h-auto"
       >
         {frases.map((frase, index) => (
-          <SwiperSlide key={index} className="flex items-center justify-center w-full h-full">
-            <h2 className="text-white text-center text-3xl md:text-5xl leading-tight px-4">
+          <SwiperSlide
+            key={index}
+            className="w-full flex justify-center items-center"
+          >
+            <h2 className="text-white text-2xl md:text-5xl leading-tight break-words px-4">
               {frase}
             </h2>
           </SwiperSlide>
