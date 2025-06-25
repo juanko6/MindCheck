@@ -4,6 +4,7 @@ import Navbar from "@/components/landing-page/Navbar";
 import Hero from "@/components/landing-page/Hero";
 import ImageSlider from "@/components/landing-page/ImageSlider";
 import FeatureSlider from "@/components/landing-page/FeatureSlider";
+import CopyWow from "@/components/landing-page/CopyWow";
 
 export default function PublicIndex() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function PublicIndex() {
         <ImageSlider />
       </Hero>
       <FeatureSlider />
+      <CopyWow />
     </div>
   );
 }
