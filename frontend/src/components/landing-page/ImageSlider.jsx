@@ -8,9 +8,9 @@ import "swiper/css/navigation";
 
 export default function ImageSlider() {
   const slides = [
-    { src: "/slider/1.png", alt: "Estudiar con MindCheck 1" },
-    { src: "/slider/2.png", alt: "Estudiar con MindCheck 2" },
-    { src: "/slider/3.png", alt: "Estudiar con MindCheck 3" },
+    { src: "/slider/1.svg", alt: "Estudiar con MindCheck 1" },
+    { src: "/slider/2.svg", alt: "Estudiar con MindCheck 2" },
+    { src: "/slider/3.svg", alt: "Estudiar con MindCheck 3" },
   ];
 
   return (
