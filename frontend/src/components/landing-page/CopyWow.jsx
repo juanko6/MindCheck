@@ -19,7 +19,7 @@ export default function CopyWow() {
       </span>
     </>,
     <>
-      <span className="rubik-semibold">Eso es</span>{' '}
+      <span className="rubik-semibold"><br />Eso es</span>{' '}
       <span className="rubik-light-italic">MindCheck.</span>
     </>,
   ];
