@@ -14,13 +14,13 @@ export default function Hero({}) {
   };
 
   return (
-    <section className="bg-[#F2F2F2] text-center px-6 py-16">
+    <section className="mt-13 bg-[#F2F2F2] text-center px-6 py-16">
       <h2 className="text-3xl md:text-5xl rubik-light-italic">
         Estudiar es duro… <span className="rubik-light-italic">hasta que</span> <br />
         usas <span className="rubik-semibold text-gray-900"> MindCheck.</span>
       </h2>
 
-      <p className="mt-4 max-w-xl mx-auto text-sm md:text-base text-gray-600 rubik-italic">
+      <p className="mt-4 max-w-xl mx-auto text-sm md:text-base text-gray-800 rubik-italic">
         Transformamos apuntes en retos mentales hechos a tu medida. Y sí, es tan genial como suena.
       </p>
 
