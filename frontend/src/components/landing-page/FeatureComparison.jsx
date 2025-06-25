@@ -84,12 +84,12 @@ export default function FeatureComparison() {
         <div className="flex flex-col gap-6 md:hidden">
             {columns.map((col, colIndex) => (
             <div key={colIndex} className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                <div className="bg-yellow-400 px-4 py-3 font-semibold text-sm text-gray-900">
+                <div className="bg-yellow-400 px-4 py-3 font-semibold text-sm text-gray-900 rubik-semibold-italic">
                 {col.title}
                 </div>
                 <div className="divide-y divide-gray-200 text-sm">
                 {features.map((feature, i) => (
-                    <div key={i} className="flex items-center justify-between px-4 py-3">
+                    <div key={i} className="flex items-center justify-between px-4 py-3 rubik-italic">
                     <span>{feature}</span>
                     {col.values[i] ? (
                         <Check className="text-green-600 w-5 h-5" />
