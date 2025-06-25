@@ -4,7 +4,7 @@ import DashedButton from "../common/DashedButton";
 import { useRouter } from "next/router";
 
 
-export default function Hero({}) {
+export default function Hero({ children }) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
@@ -14,7 +14,7 @@ export default function Hero({}) {
   };
 
   return (
-    <section className="mt-13 bg-[#F2F2F2] text-center px-6 py-16">
+    <section className="relative mt-13 bg-[#F2F2F2] text-center px-6 pt-16 pb-44">
       <h2 className="text-3xl md:text-5xl rubik-light-italic">
         Estudiar es duro… <span className="rubik-light-italic">hasta que</span> <br />
         usas <span className="rubik-semibold text-gray-900"> MindCheck.</span>
@@ -34,6 +34,14 @@ export default function Hero({}) {
             </DashedButton>
         
       </div>
+
+    {/* --------- Slider “encajado” --------- */}
+    {children && (
+      <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-2/3 w-full max-w-5xl">
+      {children}
+      </div>
+    )}
+
     </section>
   );
 }
