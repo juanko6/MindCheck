@@ -53,7 +53,7 @@ export default function FeatureSlider() {
   return (
     <section className="mt-65 py-16 bg-white">
       <div className="max-w-4xl mx-auto px-4 flex flex-col md:flex-row gap-6 justify-center items-start">
-        <div className="max-w-sm text-left pl-20">
+        <div className="max-w-sm text-left pl-5 pr-5 md:pl-30">
           <h2 className="text-3xl rubik-light-italic mb-2 text-gray-800 mr-20">
             Lo que MindCheck <br />
             <span className="rubik-semibold text-gray-900">te ayuda crear.</span>

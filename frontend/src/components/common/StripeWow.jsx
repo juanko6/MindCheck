@@ -32,7 +32,7 @@ export default function StripeWow({
         }}
         />
       )}
-      <div className="relative z-10">{children}</div>
+      <div className="relative z-10 w-full max-w-screen-md px-4 text-center">{children}</div>
     </section>
   );
 }
