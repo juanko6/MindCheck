@@ -7,6 +7,7 @@ import FeatureSlider from "@/components/landing-page/FeatureSlider";
 import CopyWow from "@/components/landing-page/CopyWow";
 import FeatureComparison from "@/components/landing-page/FeatureComparison";
 import PromoBanner from "@/components/common/PromoBanner";
+import StepByStep from "@/components/landing-page/StepByStep";
 
 export default function PublicIndex() {
   const router = useRouter();
@@ -30,6 +31,8 @@ export default function PublicIndex() {
       <CopyWow />
       <FeatureComparison />
       <PromoBanner tokens = "300" />
+      <StepByStep />
+
     </div>
   );
 }
