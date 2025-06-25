@@ -20,7 +20,7 @@ export default function Hero({}) {
         usas <span className="rubik-semibold text-gray-900"> MindCheck.</span>
       </h2>
 
-      <p className="mt-4 max-w-xl mx-auto text-sm md:text-base text-gray-800 rubik-italic">
+      <p className="mt-4 max-w-xl mx-auto text-[18px] md:text-[23px] text-gray-800 rubik-italic">
         Transformamos apuntes en retos mentales hechos a tu medida. Y sí, es tan genial como suena.
       </p>
 
