@@ -17,7 +17,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="bg-white border-b border-black/30">
+    <header className="w-full fixed top-0 z-50 bg-white border-b border-gray-300">
       {/* ------- Barra principal ------- */}
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
         {/* Logo */}
@@ -30,7 +30,7 @@ export default function Navbar() {
         />
 
         {/* Links escritorio */}
-        <nav className="hidden md:flex items-center gap-10">
+        <nav className="hidden md:flex items-center gap-10 rubik-semibold">
           <button onClick={() => go("/")}         className="font-semibold text-gray-900 hover:text-blue-600">Inicio</button>
           <button onClick={() => go("/nosotros")} className="font-semibold text-gray-900 hover:text-blue-600">Nosotros</button>
           <button onClick={() => go("/planes")}   className="font-semibold text-gray-900 hover:text-blue-600">Planes</button>
@@ -38,7 +38,7 @@ export default function Navbar() {
         </nav>
 
         {/* Botones escritorio */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-3 rubik-semibold">
             <DashedButton
                 bgColor="bg-transparent"
                 textColor="text-gray-800"
@@ -73,18 +73,22 @@ export default function Navbar() {
             <button onClick={() => go("/planes")}   className="font-semibold text-gray-900 text-lg">Planes</button>
             <button onClick={() => go("/blog")}     className="font-semibold text-gray-900 text-lg">Blog</button>
 
-            <button
-              onClick={() => go("/login")}
-              className="w-10/12 max-w-xs px-5 py-2 text-sm font-semibold border-4 border-dotted border-gray-600 rounded-md"
+                        <DashedButton
+                bgColor="bg-transparent"
+                textColor="text-gray-800"
+                className="hover:bg-gray-100"
+                onClick={() => go("/login")}
             >
-              Iniciar sesión
-            </button>
-            <button
-              onClick={() => go("/register")}
-              className="w-10/12 max-w-xs px-5 py-2 text-sm font-semibold bg-yellow-400 hover:bg-yellow-500 rounded-md border-4 border-dotted border-gray-600"
+                Iniciar Sesión
+            </DashedButton>
+
+            <DashedButton
+                textColor="text-gray-800"
+                className="hover:bg-yellow-300"
+                onClick={() => go("/register")}
             >
-              Regístrate
-            </button>
+                Regístrate
+            </DashedButton>
           </nav>
         </div>
       )}
