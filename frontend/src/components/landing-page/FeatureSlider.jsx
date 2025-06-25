@@ -51,7 +51,7 @@ export default function FeatureSlider() {
   ];
 
   return (
-    <section className="mt-60 py-16 bg-white">
+    <section className="mt-65 py-16 bg-white">
       <div className="max-w-4xl mx-auto px-4 flex flex-col md:flex-row gap-6 justify-center items-start">
         <div className="max-w-sm text-left pl-20">
           <h2 className="text-3xl rubik-light-italic mb-2 text-gray-800 mr-20">
