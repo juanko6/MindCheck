@@ -1,3 +1,5 @@
+// components/landing-page/FeatureComparison.jsx
+
 import { Check, X } from 'lucide-react';
 
 export default function FeatureComparison() {
