@@ -9,6 +9,7 @@ import FeatureComparison from "@/components/landing-page/FeatureComparison";
 import PromoBanner from "@/components/common/PromoBanner";
 import StepByStep from "@/components/landing-page/StepByStep";
 import FrecuentlyQuestion from "@/components/landing-page/FrecuentlyQuestion";
+import ActionStripe from "@/components/landing-page/ActionStripe";
 
 export default function PublicIndex() {
   const router = useRouter();
@@ -34,6 +35,7 @@ export default function PublicIndex() {
       <PromoBanner tokens = "300" />
       <StepByStep />
       <FrecuentlyQuestion />
+      <ActionStripe />
 
     </div>
   );

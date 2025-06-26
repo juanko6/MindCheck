@@ -29,7 +29,6 @@ export default function CopyWow() {
       color="#0E1A2B"
       bgImage="/assets/mindcheck-watermark.svg"
       bgOpacity={0.07}
-      bgWidth="1000px"
     >
       <Swiper
         modules={[Autoplay, EffectFade]}
