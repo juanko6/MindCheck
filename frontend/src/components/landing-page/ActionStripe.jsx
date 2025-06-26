@@ -30,7 +30,8 @@ export default function ActionStripe(){
 
                 <div className="mt-6 flex justify-center">
                     <DashedButton
-                        onClick={() => router.push("/register")}
+                        className="hover:bg-yellow-300"
+                        onClick={() => go("/register")}
                     >
                         Crear mi primer test ahora mismo!
                     </DashedButton>
