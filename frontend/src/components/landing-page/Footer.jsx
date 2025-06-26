@@ -25,7 +25,8 @@ export default function Footer() {
           </p>
 
           <DashedButton
-            className="hover:bg-yellow-300"
+            fullWidth={true}
+            className="hover:bg-yellow-300 w-full"
             onClick={() => go("/register")}
           >
             Regístrate

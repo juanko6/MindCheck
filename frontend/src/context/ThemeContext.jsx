@@ -8,18 +8,18 @@ export const ThemeProvider = ({ children }) => {
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("darkMode");
-    if (savedTheme) {
+    if (savedTheme !== null) {
       setDarkMode(JSON.parse(savedTheme));
+    } else {
+      // Detectar preferencia del sistema si no hay preferencia guardada
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setDarkMode(prefersDark);
     }
   }, []);
 
   useEffect(() => {
     localStorage.setItem("darkMode", JSON.stringify(darkMode));
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    document.documentElement.classList.toggle("dark", darkMode);
   }, [darkMode]);
 
   const toggleDarkMode = () => {

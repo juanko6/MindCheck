@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useAuth } from "../../context/AuthContext";
 import { fetchUserTests } from "@/services/testService";
 import { fetchUserData } from "@/services/userService";
+import Layout from "@/components/dashboard/Layout";
 
 export default function Dashboard() {
   const { token, logout, loading } = useAuth();
@@ -31,6 +32,7 @@ export default function Dashboard() {
   if (loading || !userData) return <div className="text-white text-center mt-10">Cargando...</div>;
 
   return (
+    <Layout>
     <div className="min-h-screen bg-gray-900 text-white p-6">
       <header className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Bienvenido a MindCheck 🎓</h1>
@@ -99,5 +101,6 @@ export default function Dashboard() {
         )}
       </section>
     </div>
+    </Layout>
   );
 }
