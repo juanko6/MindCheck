@@ -10,6 +10,7 @@ import PromoBanner from "@/components/common/PromoBanner";
 import StepByStep from "@/components/landing-page/StepByStep";
 import FrecuentlyQuestion from "@/components/landing-page/FrecuentlyQuestion";
 import ActionStripe from "@/components/landing-page/ActionStripe";
+import Footer from "@/components/landing-page/Footer";
 
 export default function PublicIndex() {
   const router = useRouter();
@@ -36,6 +37,7 @@ export default function PublicIndex() {
       <StepByStep />
       <FrecuentlyQuestion />
       <ActionStripe />
+      <Footer />
 
     </div>
   );
