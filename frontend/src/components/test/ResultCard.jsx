@@ -21,7 +21,7 @@ export default function ResultCard({ total, correctas, porcentaje, mensajeFinal,
         <div
           onClick={() => {
             localStorage.clear();
-            router.push("/");
+            router.push("/client/upload");
           }}
           className="p-8 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-center font-semibold text-2xl cursor-pointer transition-all duration-300 hover:scale-105"
         >

@@ -5,7 +5,7 @@ export default function PageSelectionFooter({ onCancel, onContinue }) {
         onClick={onCancel}
         className="bg-gray-500 text-white px-6 py-3 rounded hover:bg-gray-700 transition font-semibold"
       >
-        Cancelar
+        Atras
       </button>
 
       <button

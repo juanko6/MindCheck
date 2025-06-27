@@ -98,8 +98,8 @@ export default function SelectPagesStep() {
     }
   };
 
-  const handleCancelar = () => {
-    router.push('/');
+  const handleToBack = () => {
+    router.back();
   };
 
   if (loading || !token || !user) {
@@ -151,7 +151,7 @@ export default function SelectPagesStep() {
       </div>
 
       <PageSelectionFooter
-        onCancel={handleCancelar}
+        onCancel={handleToBack}
         onContinue={handleContinuar}
       />
     </div>
