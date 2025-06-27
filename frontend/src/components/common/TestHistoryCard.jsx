@@ -12,9 +12,9 @@ export default function TestHistoryCard({ test }) {
     <div className={`border-[5px] border-gray-400 border-dashed rounded-xl p-4 
         hover:shadow-lg ${darkMode ? "bg-[#0B1120]" : "bg-gray-300 text-gray-900"}`}
     >
-      <p className="font-semibold mb-1">Título Material:</p>
-      <p className="text-sm mb-2 truncate">{test.title}</p>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+      <p className="rubik-semibold mb-1">Título Material:</p>
+      <p className="text-sm mb-2 rubik-regular truncate">{test.title}</p>
+      <p className="text-sm mb-4 rubik-regular">
         Fecha: {new Date(test.created_at).toLocaleDateString()}
       </p>
       <DashedButton
