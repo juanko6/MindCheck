@@ -13,7 +13,7 @@ export default function Layout({ children }) {
         <Sidebar />
         <div className="flex flex-col flex-1 min-h-screen">
           <Topbar />
-          <main className="p-6 flex-1">{children}</main>
+          <main className="p-0 flex-1">{children}</main>
         </div>
       </div>
     </div>

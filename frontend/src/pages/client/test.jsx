@@ -219,8 +219,11 @@ useEffect(() => {
 
   return (
     
-    <div className={`min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-500 ${darkMode ? "animate-fadeSlideIn bg-gray-900 text-white" : "animate-fadeSlideIn bg-gray-100 text-gray-900"}`}>
-      <Navbar />
+    <div className={
+      `min-h-screen flex flex-col items-center p-6 transition-colors duration-500 
+      ${darkMode ? "animate-fadeSlideIn bg-gray-900 text-white" : "animate-fadeSlideIn bg-gray-100 text-gray-900"}`}
+      >
+      
       
       {mensajeReinicio && (
         <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
@@ -231,7 +234,7 @@ useEffect(() => {
         </div>
       )}
 
-      <h2 className="mt-20 text-2xl font-bold mb-2">{`Pregunta ${currentIndex + 1} / ${questions.length}`}</h2>
+      <h2 className="mt-6 text-2xl font-bold mb-2">{`Pregunta ${currentIndex + 1} / ${questions.length}`}</h2>
       
 
       <PreguntaCard
@@ -251,7 +254,7 @@ useEffect(() => {
       </button>
 
       <button
-        onClick={() => router.push("/")}
+        onClick={() => router.push("/client/upload")}
         className="mt-4 w-full max-w-xl bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
       >
         Finalizar Test

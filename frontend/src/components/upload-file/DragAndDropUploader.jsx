@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useTheme } from "@/context/ThemeContext";
 import { uploadPDF } from "@/services/api";
+import Image from "next/image";
 
-export default function DragAndDropUploader({ onUploadSuccess, numeroPreguntas, nivelDificultad }) {
+export default function DragAndDropUploader({ onUploadSuccess }) {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -32,88 +33,71 @@ export default function DragAndDropUploader({ onUploadSuccess, numeroPreguntas, 
     setUploadSuccess(false);
 
     try {
-      const data = await uploadPDF(file, numeroPreguntas, nivelDificultad, (progressEvent) => {
+      const data = await uploadPDF(file, null, null, (progressEvent) => {
         const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
         setUploadProgress(percentCompleted);
       });
 
       setUploadSuccess(true);
       setTimeout(() => {
-        localStorage.setItem("pdfUrl", data.pdfUrl); // Guardar URL completa
+        localStorage.setItem("pdfUrl", data.pdfUrl);
         onUploadSuccess(data.pdfUrl);
-      }, 1500);
+      }, 1000);
     } catch (error) {
       console.error("Error al subir el PDF:", error);
-      alert("❌ Error subiendo el archivo. Puede ser demasiado grande o hubo un problema de red.\n\nIntenta con un PDF más pequeño.");
+      alert("❌ Error subiendo el archivo. Intenta con un PDF más pequeño.");
     } finally {
       setUploading(false);
     }
   };
 
   return (
-    <div
-      onDrop={handleDrop}
-      onDragOver={(e) => e.preventDefault()}
-      className={`border-2 border-dashed rounded-lg p-8 mb-4 cursor-pointer transition-colors duration-500
-        ${darkMode ? "border-gray-400 bg-gray-800 text-white" : "border-gray-400 bg-white text-gray-900"}`}
-    >
-      <input
-        type="file"
-        accept="application/pdf"
-        onChange={handleFileChange}
-        className="hidden"
-        id="file-upload"
-      />
-      <label htmlFor="file-upload" className="cursor-pointer">
-        {file ? (
-          <p className="text-lg font-semibold">{file.name}</p>
-        ) : (
-          <p className={`text-lg font-semibold ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
-            Arrastra tu PDF aquí o haz clic para seleccionarlo
-          </p>
-        )}
-      </label>
+    <div className="w-full max-w-3xl mx-auto flex flex-col items-center">
 
-      <div className="mt-4 w-full">
-        <button
-          onClick={handleUpload}
-          disabled={!file || uploading || uploadSuccess}
-          className={`flex justify-center items-center gap-2 font-bold py-2 px-4 rounded w-full transition-colors duration-500
-            ${uploading || uploadSuccess ? "bg-blue-300" :
-              darkMode
-                ? "bg-yellow-400 hover:bg-yellow-500 text-black"
-                : "bg-blue-500 hover:bg-blue-700 text-white"
-            }
-            disabled:opacity-50`}
-        >
-          {uploading ? (
-            <>
-              <svg className="animate-spin h-5 w-5 text-white dark:text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-              </svg>
-              Subiendo... {uploadProgress}%
-            </>
-          ) : uploadSuccess ? (
-            <>
-              <svg className="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-              </svg>
-              ¡Listo!
-            </>
+
+      {/* Zona de carga */}
+      <div
+        onDrop={handleDrop}
+        onDragOver={(e) => e.preventDefault()}
+        className={`border-4 border-dashed rounded-2xl p-8 w-full text-center transition-colors duration-300
+          ${darkMode ? "bg-gray-800 border-gray-400" : "bg-[#98A8B7] border-gray-500 text-gray-900"}`}
+      >
+        {/* Input oculto */}
+        <input type="file" accept="application/pdf" onChange={handleFileChange} className="hidden" id="file-upload" />
+
+        <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center gap-4">
+          <Image src="/assets/dashboard/ic-upload-file.svg" alt="Upload" width={50} height={50} />
+
+          {file ? (
+            <p className="text-base font-semibold text-green-700">
+              Archivo seleccionado: {file.name}
+            </p>
           ) : (
-            "Subir y Generar Test"
+            <p className="text-base font-medium">
+              Arrastra tu documento aquí o haz clic para seleccionarlo
+            </p>
           )}
-        </button>
 
-        {uploadSuccess && (
-          <div className="mt-4 text-center text-green-500 font-bold animate-pulse">
-            Subiendo conocimiento... 🧠
+          {/* Botones separados */}
+          <div className="flex gap-4 mt-4">
+            <button
+              onClick={handleUpload}
+              disabled={!file || uploading || uploadSuccess}
+              className="bg-gray-500 hover:bg-gray-600 text-white py-1 px-4 rounded disabled:opacity-50"
+            >
+              Subir
+            </button>
+            <label htmlFor="file-upload">
+              <div className="bg-gray-500 hover:bg-gray-600 text-white py-1 px-4 rounded cursor-pointer">
+                Explora
+              </div>
+            </label>
           </div>
-        )}
+        </label>
 
+        {/* Progreso */}
         {uploading && (
-          <div className="w-full bg-gray-300 rounded-full h-2 mt-4">
+          <div className="w-full bg-gray-300 rounded-full h-2 mt-6">
             <div
               className="bg-blue-600 h-2 rounded-full transition-all duration-500"
               style={{ width: `${uploadProgress}%` }}
@@ -121,6 +105,16 @@ export default function DragAndDropUploader({ onUploadSuccess, numeroPreguntas, 
           </div>
         )}
       </div>
+
+      {/* Botón "Seguir" */}
+      <button
+        onClick={() => onUploadSuccess(localStorage.getItem("pdfUrl"))}
+        disabled={!uploadSuccess}
+        className={`mt-6 bg-gray-500 hover:bg-gray-600 text-white py-2 px-6 rounded transition-all duration-300
+          ${!uploadSuccess ? "opacity-50 cursor-not-allowed" : ""}`}
+      >
+        Seguir
+      </button>
     </div>
   );
 }
