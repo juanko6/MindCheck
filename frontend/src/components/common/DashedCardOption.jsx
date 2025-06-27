@@ -27,7 +27,7 @@ export default function DashedCardOption({ icon, text, onClick }) {
 
       {/* Ícono central */}
       <Image src={icon} alt="Icono" width={50} height={50} />
-      <p className="mt-4 text-lg font-semibold text-center">{text}</p>
+      <p className="mt-4 text-lg rubik-regular text-center">{text}</p>
     </div>
   );
 }
