@@ -1,4 +1,6 @@
 import { Document, Page } from 'react-pdf';
+import DashedButton from '../common/DashedButton';
+import { useTheme } from "@/context/ThemeContext";
 
 export default function PDFViewer({
   pdfUrl,
@@ -10,6 +12,7 @@ export default function PDFViewer({
   allSelected,
   zoom,
 }) {
+  const { darkMode } = useTheme();
 
   // Validar que la URL sea absoluta (empiece con http) o completarla con la base API
   const finalUrl = pdfUrl?.startsWith("http")
@@ -26,25 +29,32 @@ export default function PDFViewer({
   return (
     <div className="w-full max-w-5xl mx-auto">
       <div className="flex justify-between items-center mb-2 px-2">
-        <span className="text-sm font-medium">
+        <span className="text-sm rubik-light">
           {selectedPages.length} página{selectedPages.length !== 1 ? 's' : ''} seleccionada{selectedPages.length !== 1 ? 's' : ''}
         </span>
-        <button
+        <DashedButton
+          withBorder={false}
+          bgColor="bg-blue-400 hover:bg-blue-500"
+          textColor='text-white'
           onClick={handleSelectAll}
-          className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition"
         >
-          {allSelected ? 'Deseleccionar todas' : 'Seleccionar todas'}
-        </button>
+          {allSelected ? 'Deseleccionar todas' : 'Selecciona Todas'}
+        </DashedButton>
       </div>
 
-      <div className="overflow-x-auto w-full px-2 bg-white dark:bg-gray-800 rounded-lg shadow-inner border border-gray-300 dark:border-gray-700">
+      <div className={`overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200
+  w-full px-2 rounded-lg shadow-inner border-[5px] border-dashed border-gray-400 rounded-2xl p-8 text-center transition-colors duration-300
+  ${darkMode ? "bg-[#0B1120]" : "text-gray-900"}`}
+      >
+
+
 
         {finalUrl ? (
           <Document
             file={finalUrl}
             onLoadSuccess={onLoadSuccess}
           >
-            <div className="flex gap-4 py-4 w-fit">
+            <div className="grid grid-cols-1 md:flex md:w-fit gap-4 py-1">
               {Array.from({ length: numPages }, (_, index) => {
                 const pageNum = index + 1;
                 const isSelected = selectedPages.includes(pageNum);
