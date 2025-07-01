@@ -25,9 +25,9 @@ export default function UploadFilePage() {
   if (loading || !token) return <CircularLoader />;
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
+    <div className={`min-h-screen transition-colors duration-500 ${darkMode ? "bg-[#0B1120] text-white" : "bg-gray-100 text-gray-900"}`}>
       <div className="flex flex-col items-center px-6 pt-10">
-        <h2 className="text-xl md:text-2xl font-semibold text-center mb-6">
+        <h2 className="text-xl md:text-xl rubik-regular text-center mb-6">
           ¡Es tu turno! Usa tus propios apuntes como trampolín para mejorar. Pon a prueba tu mente!
         </h2>
 

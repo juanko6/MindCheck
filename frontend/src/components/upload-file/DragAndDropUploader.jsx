@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useTheme } from "@/context/ThemeContext";
+import { useRouter } from "next/router";
 import { uploadPDF } from "@/services/api";
 import Image from "next/image";
+import DashedButton from '../common/DashedButton';
 
 export default function DragAndDropUploader({ onUploadSuccess }) {
   const [file, setFile] = useState(null);
@@ -9,6 +11,7 @@ export default function DragAndDropUploader({ onUploadSuccess }) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const { darkMode } = useTheme();
+  const router = useRouter();
 
   const handleDrop = (event) => {
     event.preventDefault();
@@ -59,40 +62,48 @@ export default function DragAndDropUploader({ onUploadSuccess }) {
       <div
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
-        className={`border-4 border-dashed rounded-2xl p-8 w-full text-center transition-colors duration-300
-          ${darkMode ? "bg-gray-800 border-gray-400" : "bg-[#98A8B7] border-gray-500 text-gray-900"}`}
+        className={`border-[5px] border-dashed border-gray-400 rounded-2xl p-8 w-full text-center transition-colors duration-300
+          ${darkMode ? "bg-[#0B1120] hover:bg-gray-600" : "bg-gray-300 text-gray-900"}`}
       >
         {/* Input oculto */}
         <input type="file" accept="application/pdf" onChange={handleFileChange} className="hidden" id="file-upload" />
 
         <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center gap-4">
-          <Image src="/assets/dashboard/ic-upload-file.svg" alt="Upload" width={50} height={50} />
+          <Image src="/assets/dashboard/ic-upload.svg" alt="Upload" width={50} height={50} />
 
           {file ? (
-            <p className="text-base font-semibold text-green-700">
+            <p className="text-base rubik-semibold text-green-700">
               Archivo seleccionado: {file.name}
             </p>
           ) : (
-            <p className="text-base font-medium">
+            <p className="text-base rubik-regular">
               Arrastra tu documento aquí o haz clic para seleccionarlo
             </p>
           )}
 
           {/* Botones separados */}
+
           <div className="flex gap-4 mt-4">
-            <button
+
+            <DashedButton
               onClick={handleUpload}
-              disabled={!file || uploading || uploadSuccess}
-              className="bg-gray-500 hover:bg-gray-600 text-white py-1 px-4 rounded disabled:opacity-50"
+              className={`${(!file || uploading || uploadSuccess) ? "opacity-50 cursor-not-allowed" : ""}`}
+              withBorder={false}
+              bgColor="bg-gray-500 hover:bg-gray-600"
+              textColor="text-white"
             >
               Subir
-            </button>
-            <label htmlFor="file-upload">
-              <div className="bg-gray-500 hover:bg-gray-600 text-white py-1 px-4 rounded cursor-pointer">
-                Explora
-              </div>
+            </DashedButton>
+            <label
+              htmlFor="file-upload"
+              className="px-6 py-2 rounded-md font-semibold text-sm shadow-sm bg-gray-500 hover:bg-gray-600 text-white cursor-pointer"
+            >
+              Explora
             </label>
+
+
           </div>
+
         </label>
 
         {/* Progreso */}
@@ -107,14 +118,17 @@ export default function DragAndDropUploader({ onUploadSuccess }) {
       </div>
 
       {/* Botón "Seguir" */}
-      <button
-        onClick={() => onUploadSuccess(localStorage.getItem("pdfUrl"))}
-        disabled={!uploadSuccess}
-        className={`mt-6 bg-gray-500 hover:bg-gray-600 text-white py-2 px-6 rounded transition-all duration-300
-          ${!uploadSuccess ? "opacity-50 cursor-not-allowed" : ""}`}
-      >
-        Seguir
-      </button>
+      <div className="mt-6 w-full flex justify-start">
+        <DashedButton
+          onClick={() => router.back()}
+          withBorder={false}
+          bgColor="bg-gray-500 hover:bg-gray-600"
+          textColor="text-white"
+        >
+          Regresar
+        </DashedButton>
+      </div>
+
     </div>
   );
 }
