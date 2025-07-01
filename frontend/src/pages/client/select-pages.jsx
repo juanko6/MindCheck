@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTheme } from "@/context/ThemeContext";
-import Navbar from '@/components/common/Navbar';
 import { pdfjs } from 'react-pdf';
-import QuestionCountSelector from '@/components/select-pages/QuestionCountSelector';
-import DifficultySelector from '@/components/select-pages/DifficultySelector';
 import PDFViewer from '@/components/select-pages/PDFViewer';
 import PageSelectionFooter from '@/components/select-pages/PageSelectionFooter';
 import { useAuth } from "@/context/AuthContext";
 import { generateTest } from "@/services/testService";
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
+import ModeButton from '@/components/select-pages/ModeButton';
+
 
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf-worker/pdf.worker.min.mjs';
 
@@ -25,7 +24,15 @@ export default function SelectPagesStep() {
   const [numPages, setNumPages] = useState(null);
   const [paginasSeleccionadas, setPaginasSeleccionadas] = useState([]);
   const [allSelected, setAllSelected] = useState(false);
-  const [zoom, setZoom] = useState(100);
+  const [zoom, setZoom] = useState(200);
+
+  const modos = [
+    { label: "Modo Relax", image: "/assets/dashboard/modo-relax.svg", preguntas: 7 },
+    { label: "Modo Café", image: "/assets/dashboard/modo-cafe.svg", preguntas: 15 },
+    { label: "Modo Insano", image: "/assets/dashboard/modo-insano.svg", preguntas: 21 },
+    { label: "Modo Leyenda", image: "/assets/dashboard/modo-leyenda.svg", preguntas: 25 },
+  ];
+
 
   useEffect(() => {
     if (!loading && !token) {
@@ -109,19 +116,30 @@ export default function SelectPagesStep() {
   return (
     <div className={`min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-500
       ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
-      <Navbar />
 
-      <h1 className="mt-20 text-3xl font-bold mb-4 text-center">Selecciona las páginas del PDF 📄</h1>
+      <div className="mb-8 w-full max-w-4xl">
+        <h3 className="text-xl rubik-semibold mb-4 text-left">Que no te evalúe el caos.</h3>
+        <h3 className="text-md rubik-regular mb-4 text-left -mt-3">Escoge las páginas más jugosas y ajusta el nivel. Aquí el examen se toma con cabeza fria.
+        </h3>
+        <div className="grid grid-cols-2 gap-4 md:flex justify-items-center md:justify-left md:gap-3 md:pt-6 md:flex-wrap">
+          {modos.map((modo) => (
+            <ModeButton
+              key={modo.label}
+              label={modo.label}
+              imageSrc={modo.image}
+              questions={modo.preguntas}
+              selected={nivelDificultad === modo.label}
+              onClick={() => {
+                setNivelDificultad(modo.label);
+                setNumeroPreguntas(modo.preguntas);
+              }}
+            />
+          ))}
+        </div>
+      </div>
 
-      <QuestionCountSelector 
-        value={numeroPreguntas} 
-        onChange={setNumeroPreguntas} 
-      />
-        
-      <DifficultySelector 
-        value={nivelDificultad} 
-        onChange={setNivelDificultad} 
-      />
+
+
 
       {pdfUrl && (
         <PDFViewer
@@ -135,20 +153,6 @@ export default function SelectPagesStep() {
           zoom={zoom}
         />
       )}
-
-      <div className="flex items-center gap-4 mt-8 mb-4">
-        <label className="font-medium">Zoom:</label>
-        <input
-          type="range"
-          min="100"
-          max="250"
-          step="10"
-          value={zoom}
-          onChange={(e) => setZoom(Number(e.target.value))}
-          className="w-40"
-        />
-        <span>{zoom}%</span>
-      </div>
 
       <PageSelectionFooter
         onCancel={handleToBack}
