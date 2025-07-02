@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import Navbar from "@/components/common/Navbar";
 import PreguntaCard from "@/components/test/PreguntaCard";
 import ResultCard from "@/components/test/ResultCard";
 import { useTheme } from "@/context/ThemeContext";
@@ -22,6 +21,7 @@ export default function TestPage() {
   const [mensajeReinicio, setMensajeReinicio] = useState("");
   const [esperandoFeedback, setEsperandoFeedback] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [modoSeleccionado, setModoSeleccionado] = useState("");
 
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const { query } = useRouter();
@@ -29,62 +29,66 @@ export default function TestPage() {
 
   const router = useRouter();
   const { darkMode } = useTheme();
-  const { token, user, loading:authLoading } = useAuth();
+  const { token, user, loading: authLoading } = useAuth();
 
-useEffect(() => {
-  const fetchData = async () => {
-    if (!token || !user || authLoading) return <TestSkeletonLoader darkMode={darkMode} />;
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!token || !user || authLoading) return <TestSkeletonLoader darkMode={darkMode} />;
 
-    const { testId } = router.query;
-    if (!testId) return;
+      const { testId, dificultad } = router.query;
 
-    try {
-      const data = await getTestById(testId, token);
-      if (!data.preguntas || data.preguntas.length === 0) {
-        throw new Error("Test inválido");
-      }
+      if (!testId) return;
 
-      setQuestions(data.preguntas);
-      setCurrentIndex(0);
-    } catch (e) {
-      console.error("Error cargando test:", e);
-      alert("Error al cargar el test.");
-      router.push("/");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchData();
-}, [token, user, authLoading, router.query]);
-  
-
-useEffect(() => {
-  const testId = new URLSearchParams(window.location.search).get("testId");
-  const total = questions.length;
-  const correctas = respuestasUsuario.filter((r) => r.fueCorrecta).length;
-  const porcentaje = Math.round((correctas / total) * 100);
-
-  // ✅ Solo enviar si se ha terminado el test y hay respuestas
-  if (
-    testId &&
-    total > 0 &&
-    respuestasUsuario.length === total &&
-    !hasSubmitted
-  ) {
-    const enviar = async () => {
       try {
-        await submitTestResult(testId, respuestasUsuario, porcentaje, token);
-        console.log("✅ Resultado del test guardado");
-        setHasSubmitted(true);
-      } catch (err) {
-        console.error("❌ No se pudo guardar el resultado:", err);
+        if (dificultad) setModoSeleccionado(dificultad);
+
+        const data = await getTestById(testId, token);
+        console.log("Test cargado:", data);
+        if (!data.preguntas || data.preguntas.length === 0) {
+          throw new Error("Test inválido");
+        }
+
+        setQuestions(data.preguntas);
+        setCurrentIndex(0);
+      } catch (e) {
+        console.error("Error cargando test:", e);
+        alert("Error al cargar el test.");
+        router.push("/client/upload");
+      } finally {
+        setLoading(false);
       }
     };
 
-    enviar();
-  }
-}, [respuestasUsuario, questions, hasSubmitted]);
+    fetchData();
+  }, [token, user, authLoading, router.query]);
+
+
+  useEffect(() => {
+    const testId = new URLSearchParams(window.location.search).get("testId");
+    const total = questions.length;
+    const correctas = respuestasUsuario.filter((r) => r.fueCorrecta).length;
+    const porcentaje = Math.round((correctas / total) * 100);
+
+    // ✅ Solo enviar si se ha terminado el test y hay respuestas
+    if (
+      testId &&
+      total > 0 &&
+      respuestasUsuario.length === total &&
+      !hasSubmitted
+    ) {
+      const enviar = async () => {
+        try {
+          await submitTestResult(testId, respuestasUsuario, porcentaje, token);
+          console.log("✅ Resultado del test guardado");
+          setHasSubmitted(true);
+        } catch (err) {
+          console.error("❌ No se pudo guardar el resultado:", err);
+        }
+      };
+
+      enviar();
+    }
+  }, [respuestasUsuario, questions, hasSubmitted]);
 
 
 
@@ -114,24 +118,24 @@ useEffect(() => {
         setShowModal(true); // Mostrar feedback solo cuando ya se procesó todo
       }, 600); // Espera visible de 0.6 segundos
       fueCorrecta = true;
-      } else {
-        try {
-          explanation = await getExplanation(
-            currentQuestion.pregunta,
-            opciones[currentQuestion.respuesta]
-          );
-          setTimeout(() => {
-            setFeedback(`❌ Incorrecto. ${explanation}`);
-            setIsCorrect(false);
-            setEsperandoFeedback(false);
-          }, 600); // misma espera para mantener consistencia
-        } catch (e) {
-          setTimeout(() => {
-            setFeedback("❌ Incorrecto. (No se pudo obtener la explicación)");
-            setIsCorrect(false);
-            setEsperandoFeedback(false);
-          }, 600); // incluso en error, mostrar tras misma espera
-        }
+    } else {
+      try {
+        explanation = await getExplanation(
+          currentQuestion.pregunta,
+          opciones[currentQuestion.respuesta]
+        );
+        setTimeout(() => {
+          setFeedback(`❌ Incorrecto. ${explanation}`);
+          setIsCorrect(false);
+          setEsperandoFeedback(false);
+        }, 600); // misma espera para mantener consistencia
+      } catch (e) {
+        setTimeout(() => {
+          setFeedback("❌ Incorrecto. (No se pudo obtener la explicación)");
+          setIsCorrect(false);
+          setEsperandoFeedback(false);
+        }, 600); // incluso en error, mostrar tras misma espera
+      }
     }
 
 
@@ -176,9 +180,9 @@ useEffect(() => {
   if (loading) return <TestSkeletonLoader darkMode={darkMode} />;
 
   if (!token || !user) {
-  router.push("/login");
-  return null;
-}
+    router.push("/login");
+    return null;
+  }
 
   if (!questions.length) {
     return <p className="animate-fadeSlideIn text-center mt-10 text-red-500">❌ No se encontraron preguntas. Volviendo al inicio...</p>;
@@ -203,9 +207,9 @@ useEffect(() => {
         mensajeFinal={mensajeFinal}
         onRetry={handleRetry}
         respuestasUsuario={respuestasUsuario}
-        
+
       />
-      
+
     );
   }
 
@@ -218,13 +222,32 @@ useEffect(() => {
   ];
 
   return (
-    
+
     <div className={
       `min-h-screen flex flex-col items-center p-6 transition-colors duration-500 
       ${darkMode ? "animate-fadeSlideIn bg-gray-900 text-white" : "animate-fadeSlideIn bg-gray-100 text-gray-900"}`}
-      >
-      
-      
+    >
+<div className="flex justify-between items-center w-full max-w-5xl mb-4">
+  <div
+    className={`text-white font-bold text-sm px-4 py-1 rounded-full uppercase shadow-lg tracking-wide
+      ${modoSeleccionado === "relax" ? "bg-green-500" :
+        modoSeleccionado === "café" ? "bg-yellow-600" :
+        modoSeleccionado === "insano" ? "bg-red-600" :
+        modoSeleccionado === "leyenda" ? "bg-purple-700" : "bg-gray-400"
+      }`}
+  >
+    Modo {modoSeleccionado}
+  </div>
+
+  <button
+    onClick={() => router.push("/client/upload")}
+    className="text-white bg-red-500 hover:bg-red-700 font-bold px-3 py-2 rounded-lg"
+  >
+    ✕
+  </button>
+</div>
+
+
       {mensajeReinicio && (
         <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
           <div className="bg-green-500 text-white px-8 py-5 rounded-2xl shadow-2xl text-xl font-semibold flex items-center gap-4 animate-popAndFade">
@@ -235,7 +258,7 @@ useEffect(() => {
       )}
 
       <h2 className="mt-6 text-2xl font-bold mb-2">{`Pregunta ${currentIndex + 1} / ${questions.length}`}</h2>
-      
+
 
       <PreguntaCard
         pregunta={currentQuestion.pregunta}

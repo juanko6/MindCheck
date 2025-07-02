@@ -43,7 +43,7 @@ export default function SelectPagesStep() {
     const pdf = localStorage.getItem('pdfUrl');
     if (!pdf) {
       alert("Faltan datos para continuar. Regresando al inicio.");
-      router.push('/');
+      router.push('/client/upload');
       return;
     }
 
