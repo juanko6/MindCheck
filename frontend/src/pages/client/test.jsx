@@ -8,6 +8,7 @@ import TestSkeletonLoader from "@/components/test/SkeletonLoader";
 import { getTestById } from "@/services/testService";
 import { useAuth } from "@/context/AuthContext";
 import { submitTestResult } from "@/services/testService";
+import DashedButton from "@/components/common/DashedButton";
 
 
 export default function TestPage() {
@@ -54,6 +55,11 @@ export default function TestPage() {
           setModoSeleccionado(data.dificultad || ""); // ← luego accedes a 'data'
           setQuestions(data.preguntas);
           setCurrentIndex(0);
+
+          /* // 👇 Forzar modo resultados durante desarrollo
+          if (process.env.NODE_ENV === "development") {
+            setCurrentIndex(Number.MAX_SAFE_INTEGER);
+          } */
         }
       } catch (e) {
         console.error("Error cargando test:", e);
@@ -203,10 +209,11 @@ export default function TestPage() {
     const porcentaje = Math.round((correctas / total) * 100);
     let mensajeFinal = "";
 
-    if (porcentaje >= 90) mensajeFinal = "🧠 ¡Eres un Genio Total!";
-    else if (porcentaje >= 70) mensajeFinal = "🔥 ¡Muy bien, casi perfecto!";
-    else if (porcentaje >= 50) mensajeFinal = "🤓 ¡Vas bien, sigue practicando!";
-    else mensajeFinal = "🤡 ¡Ups! A estudiar se dijo...";
+    if (porcentaje >= 100) mensajeFinal = "¡Nada se te escapa! Podrías enseñarle al profe.";
+    else if (porcentaje >= 80) mensajeFinal = "Tus apuntes tiemblan cuando te ven llegar.";
+    else if (porcentaje >= 60) mensajeFinal = "¡Casi lo logras! Un repaso más y arrasas.";
+    else if (porcentaje >= 40) mensajeFinal = "Estás calentando motores. Sigue así.";
+    else mensajeFinal = "Respira… todo gran genio empieza fallando.";
 
     return (
       <ResultCard
@@ -241,19 +248,23 @@ export default function TestPage() {
           className={`text-white font-bold text-sm px-4 py-1 rounded-full uppercase shadow-lg tracking-wide
             ${modoSeleccionado === "Modo Relax" ? "bg-green-500" :
               modoSeleccionado === "Modo Café" ? "bg-yellow-600" :
-              modoSeleccionado === "Modo Insano" ? "bg-red-600" :
-              modoSeleccionado === "Modo Leyenda" ? "bg-purple-700" : "bg-gray-400"
+                modoSeleccionado === "Modo Insano" ? "bg-red-600" :
+                  modoSeleccionado === "Modo Leyenda" ? "bg-purple-700" : "bg-gray-400"
             }`}
         >
           {modoSeleccionado}
         </div>
 
-        <button
+        <DashedButton
+          bgColor="bg-red-500"
+          textColor="text-white"
+          withBorder={false}
+          className="hover:bg-red-700"
           onClick={() => router.push("/client/upload")}
-          className="text-white bg-red-500 hover:bg-red-700 font-bold px-3 py-2 rounded-lg"
         >
           ✕
-        </button>
+        </DashedButton>
+
       </div>
 
 
@@ -266,7 +277,7 @@ export default function TestPage() {
         </div>
       )}
 
-      <h2 className="mt-6 text-2xl font-bold mb-2">{`Pregunta ${currentIndex + 1} / ${questions.length}`}</h2>
+      <h2 className="mt-6 text-2xl rubik-semibold mb-2">{`Pregunta ${currentIndex + 1} / ${questions.length}`}</h2>
 
 
       <PreguntaCard
