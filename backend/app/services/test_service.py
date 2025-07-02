@@ -3,8 +3,12 @@ from sqlalchemy import select
 from app.models import Test
 
 # Crear test asociado a un usuario
-async def create_test(user_id: int, title: str, data: dict, db: AsyncSession):
-    new_test = Test(user_id=user_id, title=title, data=data)
+async def create_test(user_id: int, title: str, dificultad: str, data: dict, db: AsyncSession):
+    new_test = Test(
+        user_id=user_id, 
+        title=title,
+        dificultad=dificultad, 
+        data=data)
     db.add(new_test)
     await db.commit()
     await db.refresh(new_test)

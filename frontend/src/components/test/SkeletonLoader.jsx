@@ -1,10 +1,8 @@
-import Navbar from '@/components/common/Navbar';
-
 
 export default function TestSkeletonLoader({ darkMode }) {
   return (
     <div className={`min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-500 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
-      <Navbar />
+      
 
       <div className="w-120 h-6 rounded shimmer mb-6"></div>
 
