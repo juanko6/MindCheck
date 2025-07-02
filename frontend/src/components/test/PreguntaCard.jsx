@@ -7,7 +7,7 @@ export default function PreguntaCard({ pregunta, opciones, selectedOption, setSe
     <div className={`mt-6 p-6 rounded-lg shadow-md w-full max-w-xl transition-colors duration-500
       ${darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}>
 
-      <p className={`text-lg font-semibold mb-6 text-center ${darkMode ? "text-white" : "text-gray-800"}`}>
+      <p className={`text-lg rubik-regular mb-6 text-center ${darkMode ? "text-white" : "text-gray-800"}`}>
         {pregunta}
       </p>
 
@@ -21,7 +21,7 @@ export default function PreguntaCard({ pregunta, opciones, selectedOption, setSe
           return (
             <label
               key={index}
-              className={`w-full flex justify-center items-center p-4 rounded-xl cursor-pointer font-semibold border-2 transition-all duration-300
+              className={`w-full flex justify-center items-center p-4 rounded-xl cursor-pointer rubik-regular border-2 transition-all duration-300
                 ${isSelected 
                   ? "bg-blue-600 text-white border-blue-700 scale-105"
                   : darkMode
