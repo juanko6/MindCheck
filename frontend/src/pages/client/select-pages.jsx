@@ -19,7 +19,6 @@ export default function SelectPagesStep() {
   const { token, user, loading } = useAuth();
 
   const [pdfUrl, setPdfUrl] = useState('');
-  const [numeroPreguntas, setNumeroPreguntas] = useState(5);
   const [nivelDificultad, setNivelDificultad] = useState("Modo Relax");
   const [numPages, setNumPages] = useState(null);
   const [paginasSeleccionadas, setPaginasSeleccionadas] = useState([]);
@@ -87,10 +86,13 @@ export default function SelectPagesStep() {
     }
 
     try {
+      
+      const preguntasPorModo = modos.find(m => m.label === nivelDificultad)?.preguntas || 7;
+
       const response = await generateTest({
         pdf_url: pdfUrl,
         paginas: paginasSeleccionadas,
-        numero_preguntas: numeroPreguntas,
+        numero_preguntas: preguntasPorModo,
         dificultad: nivelDificultad,
       }, token);
       console.log("Enviando token:", token);
@@ -130,8 +132,7 @@ export default function SelectPagesStep() {
               questions={modo.preguntas}
               selected={nivelDificultad === modo.label}
               onClick={() => {
-                setNivelDificultad(modo.label);
-                setNumeroPreguntas(modo.preguntas);
+                setNivelDificultad(modo.label)
               }}
             />
           ))}

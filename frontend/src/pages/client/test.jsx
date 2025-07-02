@@ -32,34 +32,43 @@ export default function TestPage() {
   const { token, user, loading: authLoading } = useAuth();
 
   useEffect(() => {
+    let isMounted = true; // ← evita ejecución si el componente se desmonta
+
     const fetchData = async () => {
-      if (!token || !user || authLoading) return <TestSkeletonLoader darkMode={darkMode} />;
+      if (!token || !user || authLoading) return;
 
-      const { testId, dificultad } = router.query;
-
+      const { testId } = router.query;
       if (!testId) return;
 
       try {
-        if (dificultad) setModoSeleccionado(dificultad);
-
-        const data = await getTestById(testId, token);
+        const data = await getTestById(testId, token);  // <-- primero obtén 'data'
         console.log("Test cargado:", data);
+
         if (!data.preguntas || data.preguntas.length === 0) {
           throw new Error("Test inválido");
         }
 
-        setQuestions(data.preguntas);
-        setCurrentIndex(0);
+        if (isMounted) {
+          console.log("Preguntas recibidas:", data.preguntas);
+          console.log("📌 Dificultad recibida desde backend:", data.dificultad);
+          setModoSeleccionado(data.dificultad || ""); // ← luego accedes a 'data'
+          setQuestions(data.preguntas);
+          setCurrentIndex(0);
+        }
       } catch (e) {
         console.error("Error cargando test:", e);
         alert("Error al cargar el test.");
         router.push("/client/upload");
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchData();
+
+    return () => {
+      isMounted = false; // cleanup para evitar ejecuciones tras desmontar
+    };
   }, [token, user, authLoading, router.query]);
 
 
@@ -227,25 +236,25 @@ export default function TestPage() {
       `min-h-screen flex flex-col items-center p-6 transition-colors duration-500 
       ${darkMode ? "animate-fadeSlideIn bg-gray-900 text-white" : "animate-fadeSlideIn bg-gray-100 text-gray-900"}`}
     >
-<div className="flex justify-between items-center w-full max-w-5xl mb-4">
-  <div
-    className={`text-white font-bold text-sm px-4 py-1 rounded-full uppercase shadow-lg tracking-wide
-      ${modoSeleccionado === "relax" ? "bg-green-500" :
-        modoSeleccionado === "café" ? "bg-yellow-600" :
-        modoSeleccionado === "insano" ? "bg-red-600" :
-        modoSeleccionado === "leyenda" ? "bg-purple-700" : "bg-gray-400"
-      }`}
-  >
-    Modo {modoSeleccionado}
-  </div>
+      <div className="flex justify-end items-center w-full max-w-5xl mb-4 gap-4">
+        <div
+          className={`text-white font-bold text-sm px-4 py-1 rounded-full uppercase shadow-lg tracking-wide
+            ${modoSeleccionado === "Modo Relax" ? "bg-green-500" :
+              modoSeleccionado === "Modo Café" ? "bg-yellow-600" :
+              modoSeleccionado === "Modo Insano" ? "bg-red-600" :
+              modoSeleccionado === "Modo Leyenda" ? "bg-purple-700" : "bg-gray-400"
+            }`}
+        >
+          {modoSeleccionado}
+        </div>
 
-  <button
-    onClick={() => router.push("/client/upload")}
-    className="text-white bg-red-500 hover:bg-red-700 font-bold px-3 py-2 rounded-lg"
-  >
-    ✕
-  </button>
-</div>
+        <button
+          onClick={() => router.push("/client/upload")}
+          className="text-white bg-red-500 hover:bg-red-700 font-bold px-3 py-2 rounded-lg"
+        >
+          ✕
+        </button>
+      </div>
 
 
       {mensajeReinicio && (
@@ -276,12 +285,7 @@ export default function TestPage() {
         Enviar Respuesta
       </button>
 
-      <button
-        onClick={() => router.push("/client/upload")}
-        className="mt-4 w-full max-w-xl bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Finalizar Test
-      </button>
+
 
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm z-50">

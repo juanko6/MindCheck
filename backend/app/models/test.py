@@ -9,7 +9,8 @@ class Test(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     title = Column(String)
-    data = Column(JSON)  # Aquí se guarda el test completo (preguntas, opciones, respuestas)
+    dificultad = Column(String(50))
+    data = Column(JSON)  # data del test completo (preguntas, opciones, respuestas)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="tests")

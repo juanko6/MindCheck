@@ -23,6 +23,7 @@ class TestHistoryResponse(BaseModel):
     title: str
     created_at: datetime
     porcentaje: Optional[int] = None
+    dificultad: Optional[str] = None
 
 @router.get("/history", response_model=List[TestHistoryResponse])
 async def get_test_history(
@@ -34,7 +35,8 @@ async def get_test_history(
             TestResult.id,
             Test.title,
             TestResult.created_at,   # 🟢 usamos created_at de TestResult
-            TestResult.porcentaje
+            TestResult.porcentaje,
+            Test.dificultad
         )
         .join(Test, Test.id == TestResult.test_id)  # 🛠 JOIN explícito y correcto
         .where(TestResult.user_id == current_user.id)
@@ -44,13 +46,14 @@ async def get_test_history(
     records = result.all()
     
     return [
-        {
-            "id": id_,
-            "title": title,
-            "created_at": created_at,
-            "porcentaje": porcentaje
-        }
-        for id_, title, created_at, porcentaje in records
+        TestHistoryResponse(
+            id=id_,
+            title=title,
+            created_at=created_at,
+            porcentaje=porcentaje,
+            dificultad=dificultad
+        )
+        for id_, title, created_at, porcentaje, dificultad in records
     ]
 
 class GenerateTestDTO(BaseModel):
@@ -65,8 +68,9 @@ async def generate_test(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user)
     ):
+    print("🟢 Datos recibidos en generate_test:", datos.dict())  # <--- agrega esto
     
-    costo = datos.numero_preguntas * 10
+    costo = len(datos.paginas) * 10
     if not user.tokens or user.tokens < costo:
         raise HTTPException(status_code=400, detail="No tienes suficientes tokens")
 
@@ -85,11 +89,15 @@ async def generate_test(
     test = await create_test(
         user_id=user.id,
         title=f"Test de PDF: {datos.pdf_url}",
+        dificultad=datos.dificultad,
         data=preguntas,
         db=db
     )
 
-    return {"testId": test.id}
+    return {
+        "dificultad": test.dificultad,
+        "testId": test.id
+        }
 
 
 @router.get("/{test_id}")
@@ -101,7 +109,11 @@ async def get_test(
     test = await get_test_by_id(test_id, db)
     if not test or test.user_id != user.id:
         raise HTTPException(status_code=404, detail="Test no encontrado o acceso denegado")
-    return test.data
+    return {
+        "preguntas": test.data.get("preguntas", []),
+        "dificultad": test.dificultad,
+        "title": test.title
+    }
 
 @router.get("/")
 async def list_user_tests(db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):

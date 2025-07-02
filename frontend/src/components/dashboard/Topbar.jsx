@@ -4,8 +4,10 @@ import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { fetchUserData } from "@/services/userService";
 import { LogOut } from "lucide-react";
+import { useRouter } from "next/router";
 
 export default function Topbar() {
+  const router = useRouter();
   const { token, logout } = useAuth();
   const { darkMode, toggleDarkMode } = useTheme();
   const [userData, setUserData] = useState(null);
@@ -16,7 +18,7 @@ export default function Topbar() {
         .then(setUserData)
         .catch(() => logout());
     }
-  }, [token]);
+  }, [token, router.asPath]);
 
   return (
     <header
