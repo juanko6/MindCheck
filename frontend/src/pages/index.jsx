@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useAuth } from "@/context/AuthContext";
-import Navbar from "@/components/landing-page/Navbar";
+import Navbar from "@/components/landing-page/NavBar";
 import Hero from "@/components/landing-page/Hero";
 import ImageSlider from "@/components/landing-page/ImageSlider";
 import FeatureSlider from "@/components/landing-page/FeatureSlider";
