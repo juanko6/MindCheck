@@ -1,0 +1,1 @@
+este ficher debe de volverse el jsx de entrada
