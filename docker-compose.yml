@@ -26,8 +26,8 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       DATABASE_URL: ${DATABASE_URL}
       SECRET_KEY: ${SECRET_KEY}
-    expose:
-      - "${BACKEND_PORT}"
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
     volumes:
       - ./backend/uploads:/app/uploads
     restart: always
@@ -37,7 +37,7 @@ services:
         context: ./frontend
         args:
           # Inyectada en tiempo de build para Next.js
-          NEXT_PUBLIC_API_URL: https://${PUBLIC_HOST}${API_BASE_PATH}
+          NEXT_PUBLIC_API_URL: ${PUBLIC_HOST}${API_BASE_PATH}
       container_name: mindcheck-frontend
       env_file:
         - .env
