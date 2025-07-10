@@ -1,30 +1,37 @@
-import sys
-import os
+import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../')))
 
 from logging.config import fileConfig
-
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
+from sqlalchemy import engine_from_config, pool
 from alembic import context
-
-from app.db.database import Base
-from app.models import user, test, test_result  # importar modelos aquí
-
+from dotenv import load_dotenv
+load_dotenv()   
 
 
+db_url = os.getenv("DATABASE_URL")
+if db_url.startswith("postgresql+asyncpg"):
+    db_url = db_url.replace("postgresql+asyncpg", "postgresql+psycopg2", 1)
+print(">> DSN usado por Alembic:", repr(db_url))
 
+# ↪ si el host es 'db' y no estamos en Docker, cámbialo a 'localhost'
+if "db" in db_url and not os.path.exists("/.dockerenv"):
+    db_url = db_url.replace("@db:", "@localhost:", 1)
 
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+config.set_main_option("sqlalchemy.url", db_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
+
+from app.db.database import Base
+from app.models import user, test, test_result
+
+target_metadata = Base.metadata
 
 # add your model's MetaData object here
 # for 'autogenerate' support
