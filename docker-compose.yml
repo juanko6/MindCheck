@@ -37,7 +37,7 @@ services:
         context: ./frontend
         args:
           # Inyectada en tiempo de build para Next.js
-          NEXT_PUBLIC_API_URL: http://${PUBLIC_HOST}:${BACKEND_PORT}
+          NEXT_PUBLIC_API_URL: http://${PUBLIC_HOST}:${BACKEND_PORT}${API_BASE_PATH}
       container_name: mindcheck-frontend
       env_file:
         - .env
