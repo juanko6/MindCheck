@@ -6,7 +6,8 @@ ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 # 1. Sólo los manifests => capa cacheable
-COPY package*.json ./
+COPY package.json ./  
+COPY package-lock.json ./
 RUN npm ci --omit=dev --no-audit --progress=false 
 # ← más rápido y determinista
 
