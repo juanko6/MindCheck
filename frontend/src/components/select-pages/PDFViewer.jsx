@@ -14,17 +14,23 @@ export default function PDFViewer({
 }) {
   const { darkMode } = useTheme();
 
-  // Validar que la URL sea absoluta (empiece con http) o completarla con la base API
-  const finalUrl = pdfUrl?.startsWith("http")
-    ? pdfUrl
-    : `${process.env.NEXT_PUBLIC_STATIC_URL}${pdfUrl}`;
+let finalUrl;
 
-  // Validación adicional para depuración
-  if (!finalUrl || typeof finalUrl !== "string") {
-    console.warn("❌ URL inválida para PDF:", finalUrl);
-  } else {
-    console.log("📄 URL PDF final usada:", finalUrl);
-  }
+if (!pdfUrl) {
+  console.warn("❌ URL PDF inválida:", pdfUrl);
+  finalUrl = "";
+} else if (pdfUrl.startsWith("https://")) {
+  finalUrl = pdfUrl;
+} else if (pdfUrl.startsWith("http://")) {
+  // Fuerza HTTPS
+  finalUrl = pdfUrl.replace("http://", "https://");
+} else {
+  // Si es relativa, la completamos con la API base que ya debe tener https
+  finalUrl = `${process.env.NEXT_PUBLIC_API_URL}${pdfUrl}`;
+}
+
+console.log("📄 URL PDF final usada:", finalUrl);
+
 
   return (
     <div className="w-full max-w-5xl mx-auto">
