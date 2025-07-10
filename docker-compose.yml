@@ -38,6 +38,7 @@ services:
         args:
           # Inyectada en tiempo de build para Next.js
           NEXT_PUBLIC_API_URL: ${PUBLIC_HOST}${API_BASE_PATH}
+          NEXT_PUBLIC_STATIC_URL: ${NEXT_PUBLIC_STATIC_URL}
       container_name: mindcheck-frontend
       env_file:
         - .env

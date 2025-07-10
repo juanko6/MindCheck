@@ -17,7 +17,7 @@ export default function PDFViewer({
   // Validar que la URL sea absoluta (empiece con http) o completarla con la base API
   const finalUrl = pdfUrl?.startsWith("http")
     ? pdfUrl
-    : `${process.env.NEXT_PUBLIC_API_URL}${pdfUrl}`;
+    : `${process.env.NEXT_PUBLIC_STATIC_URL}${pdfUrl}`;
 
   // Validación adicional para depuración
   if (!finalUrl || typeof finalUrl !== "string") {
