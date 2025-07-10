@@ -3,18 +3,19 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1 import testController, auth, users, tests
+from dotenv import load_dotenv
+
+load_dotenv() 
 
 app = FastAPI()
+
 
 # Crear carpeta uploads si no existe
 upload_dir = "uploads"
 if not os.path.exists(upload_dir):
     os.makedirs(upload_dir)
 
-origins = [
-    "http://168.75.106.115:3000",
-    "http://localhost:3000",  # opcional, para desarrollo local
-]
+origins = os.getenv("CORS_ORIGINS", "").split(",")
 
 # Configuración de CORS
 app.add_middleware(
