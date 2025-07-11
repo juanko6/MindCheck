@@ -3,9 +3,13 @@ import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import Link from "next/link"
+import Swal from 'sweetalert2';
 
 export default function RegisterPage() {
   const { register } = useAuth();
+  const [username, setUsername] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -15,9 +19,27 @@ export default function RegisterPage() {
     e.preventDefault();
     setError(null);
     try {
-      await register(email, password);
+      await register({
+        username,
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        password,
+      });
+
+      Swal.fire({
+        icon: "success",
+        title: "Cuenta creada correctamente",
+        text: "Ya puedes empezar a usar MindCheck",
+        timer: 1500,
+        showConfirmButton: false,
+      });
     } catch (err) {
-      setError("El correo ya está registrado");
+      Swal.fire({
+        icon: "error",
+        title: "Error al registrar",
+        text: err.message,
+      });
     }
   };
 
@@ -49,6 +71,30 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="text"
+              placeholder="Nombre de Usuario"
+              className="w-full p-3 rounded border-2 border-dashed border-gray-400 bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Nombre"
+              className="w-full p-3 rounded border-2 border-dashed border-gray-400 bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Apellido"
+              className="w-full p-3 rounded border-2 border-dashed border-gray-400 bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              required
+            />
             <input
               type="email"
               placeholder="Correo Institucional"

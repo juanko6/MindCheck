@@ -73,7 +73,7 @@ export default function Profile() {
                             className={`w-full px-3 py-2 border-2 border-dashed rounded ${
                                 darkMode ? "bg-[#1F2937] text-white" : "bg-gray-50 text-gray-900"
                             }`}
-                            value={userData.firstName || ""}
+                            value={userData.first_name  || ""}
                         />
                     </div>
                     <div>
@@ -83,7 +83,7 @@ export default function Profile() {
                             className={`w-full px-3 py-2 border-2 border-dashed rounded ${
                                 darkMode ? "bg-[#1F2937] text-white" : "bg-gray-50 text-gray-900"
                             }`}
-                            value={userData.lastName || ""}
+                            value={userData.last_name  || ""}
                         />
                     </div>
                     <div>
