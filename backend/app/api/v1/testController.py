@@ -1,4 +1,5 @@
 import os
+import stat 
 import traceback
 from pathlib import Path
 from urllib.parse import unquote
@@ -16,11 +17,16 @@ async def upload_pdf(request: Request, file: UploadFile = File(...)):
     os.makedirs(upload_dir, exist_ok=True)  # crea la carpeta si no existe
 
     file_location = os.path.join(upload_dir, file.filename)
+    # Guardar el archivo
     with open(file_location, "wb+") as file_object:
         file_object.write(await file.read())
 
-    # Generar URL completa para el archivo
-    full_url = f"{request.base_url}uploads/{file.filename.replace(' ', '%20')}"
+    # Asignar permisos 644 (lectura global)
+    os.chmod(file_location, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
+
+    # Generar URL completa segura (HTTPS)
+    base_url = str(request.base_url).replace("http://", "https://")  # fuerza HTTPS
+    full_url = f"{base_url}uploads/{file.filename.replace(' ', '%20')}"
 
     return {"pdfUrl": full_url}
 

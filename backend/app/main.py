@@ -27,7 +27,8 @@ app.add_middleware(
 )
 
 # Montar carpeta uploads para servir archivos estáticos
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+if os.getenv("ENV") != "production":
+    app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 
 # Registrar rutas
