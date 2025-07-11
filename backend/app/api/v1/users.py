@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends
-from app.core.oauth import get_current_user
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.schemas.user import UserResponse
+from app.core.oauth import get_current_user,  get_db
 from app.models.user import User
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
-@router.get("/me", response_model=dict)
-async def read_users_me(current_user: User = Depends(get_current_user)):
-    return {
-        "id": current_user.id,
-        "email": current_user.email,
-        "role": current_user.role,
-        "tokens": current_user.tokens
-    }
+@router.get("/me", response_model=UserResponse)
+async def get_my_user_data(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    return current_user

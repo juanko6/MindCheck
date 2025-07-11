@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
 
   const router = useRouter();
 
-    const fetchUser = async (token) => {
+  const fetchUser = async (token) => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
         headers: {
@@ -37,16 +37,16 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const login = async (email, password) => {
-    const data = await loginAPI(email, password);
+  const login = async (identifier, password) => {
+    const data = await loginAPI(identifier, password);
     localStorage.setItem("token", data.access_token);
     setToken(data.access_token);
     await fetchUser(data.access_token);
     router.push("/dashboard");
   };
 
-  const register = async (email, password) => {
-    const data = await registerAPI(email, password);
+  const register = async (userData) => {
+    const data = await registerAPI(userData);
     localStorage.setItem("token", data.access_token);
     setToken(data.access_token);
     await fetchUser(data.access_token);

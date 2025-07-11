@@ -3,23 +3,35 @@ import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import Link from "next/link"
+import Swal from "sweetalert2";
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-    try {
-      await login(email, password);
-    } catch (err) {
-      setError("Correo o contraseña incorrecta");
-    }
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    await login(identifier, password);
+
+    Swal.fire({
+      icon: "success",
+      title: "Bienvenido",
+      text: "Inicio de sesión exitoso",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Error al iniciar sesión",
+      text: err.message,
+    });
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#F1F3F9] flex items-center justify-center px-4">
@@ -46,11 +58,11 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
-              type="email"
-              placeholder="Correo Institucional"
+              type="text"
+              placeholder="Correo Institucional o Usuario"
               className="w-full p-3 rounded border-2 border-dashed border-gray-400 bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
               required
             />
             <input
