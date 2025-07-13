@@ -19,17 +19,21 @@ let finalUrl;
 if (!pdfUrl) {
   console.warn("❌ URL PDF inválida:", pdfUrl);
   finalUrl = "";
-} else if (pdfUrl.startsWith("https://")) {
-  finalUrl = pdfUrl;
-} else if (pdfUrl.startsWith("http://")) {
-  // Fuerza HTTPS
-  finalUrl = pdfUrl.replace("http://", "https://");
+} else if (pdfUrl.startsWith("http://") || pdfUrl.startsWith("https://")) {
+  // ✅ Usa la URL tal como está si es absoluta
+  const isProd = process.env.ENVIRONMENT === "production";
+  finalUrl = isProd ? pdfUrl.replace("http://", "https://") : pdfUrl;
 } else {
-  // Si es relativa, la completamos con la API base que ya debe tener https
-  finalUrl = `${process.env.NEXT_PUBLIC_API_URL}${pdfUrl}`;
+  // Si es relativa, complétala con el dominio de la API
+  const base = process.env.NODE_ENV === "production"
+  ? process.env.NEXT_PUBLIC_API_URL
+  : "http://localhost:8000/uploads";
+
+finalUrl = `${base}/${userId}/${filename}`;
 }
 
 console.log("📄 URL PDF final usada:", finalUrl);
+
 
 
   return (

@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1 import testController, auth, users, tests
+from app.api.v1 import testController, auth, users, tests, documents
 from dotenv import load_dotenv
 
 load_dotenv() 
@@ -26,9 +26,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Montar carpeta uploads para servir archivos estáticos
-if os.getenv("ENV") != "production":
+if os.getenv("ENVIRONMENT") != "production":
     app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
 
 
 # Registrar rutas
@@ -36,6 +36,7 @@ app.include_router(auth.router)
 app.include_router(testController.router)
 app.include_router(users.router)
 app.include_router(tests.router)
+app.include_router(documents.router)
 
 
 @app.get("/")
