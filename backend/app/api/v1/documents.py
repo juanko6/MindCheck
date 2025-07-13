@@ -39,7 +39,13 @@ async def upload_document(
     await db.commit()
     await db.refresh(db_doc)
 
-    base_url = str(request.base_url).rstrip("/")
+    # ✅ Forzar HTTPS si estás en producción
+    raw_base_url = str(request.base_url).rstrip("/")
+    if os.getenv("ENVIRONMENT") == "production":
+        base_url = raw_base_url.replace("http://", "https://")
+    else:
+        base_url = raw_base_url
+
     file_url = f"{base_url}/api/v1/documents/view/{current_user.id}/{file.filename.replace(' ', '%20')}"
 
 
