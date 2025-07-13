@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTheme } from "@/context/ThemeContext";
+import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/router";
 import { uploadPDF } from "@/services/api";
 import Image from "next/image";
@@ -12,6 +13,7 @@ export default function DragAndDropUploader({ onUploadSuccess }) {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const { darkMode } = useTheme();
   const router = useRouter();
+  const { token } = useAuth();
 
   const handleDrop = (event) => {
     event.preventDefault();
@@ -29,22 +31,22 @@ export default function DragAndDropUploader({ onUploadSuccess }) {
   };
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (!file || !token) return;
 
     setUploading(true);
     setUploadProgress(0);
     setUploadSuccess(false);
 
     try {
-      const data = await uploadPDF(file, null, null, (progressEvent) => {
+      const { fileUrl } = await uploadPDF(file, token, (progressEvent) => {
         const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
         setUploadProgress(percentCompleted);
       });
 
-      setUploadSuccess(true);
+      console.log("📄📄📄📄 fileUrl", fileUrl);
+      onUploadSuccess(fileUrl);
       setTimeout(() => {
-        localStorage.setItem("pdfUrl", data.pdfUrl);
-        onUploadSuccess(data.pdfUrl);
+        onUploadSuccess(fileUrl);  // ✅ usa la nueva propiedad
       }, 1000);
     } catch (error) {
       console.error("Error al subir el PDF:", error);

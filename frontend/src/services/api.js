@@ -9,16 +9,26 @@ console.log("API URL usada:", API_BASE);
  * @param {function} onProgress - Callback para monitorear el progreso de subida.
  * @returns {Promise<Object>} - Respuesta del backend con las preguntas generadas.
  */
-export const uploadPDF = async (file, onProgress) => {
+export const uploadPDF = async (file, token, onProgress) => {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await axios.post(`${API_BASE}/upload-pdf`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-    onUploadProgress: onProgress,
-  });
+  const response = await axios.post(
+    `${process.env.NEXT_PUBLIC_API_URL}/documents/upload`,
+    formData,
+    {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "multipart/form-data"
+      },
+      onUploadProgress: onProgress,
+    }
+  );
 
-  return response.data;
+  const { fileUrl } = response.data;
+  console.log("✅ fileUrl recibido:", fileUrl); // <-- Añade esto para verificar
+
+  return { fileUrl }; // ✅ ahora sí retornamos el valor esperado
 };
 
 /**

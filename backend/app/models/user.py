@@ -20,6 +20,6 @@ class User(Base):
     tokens = Column(Integer, default=300)
     
     tests = relationship("Test", back_populates="user")
-
+    documents = relationship("Document", back_populates="owner", cascade="all, delete")
 
 
