@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react';
 import { Document, Page } from 'react-pdf';
 import DashedButton from '../common/DashedButton';
 import { useTheme } from "@/context/ThemeContext";
+import { useAuth } from "@/context/AuthContext";
 
 export default function PDFViewer({
   pdfUrl,
@@ -13,28 +15,59 @@ export default function PDFViewer({
   zoom,
 }) {
   const { darkMode } = useTheme();
+  const { token } = useAuth();
+  const [pdfFile, setPdfFile] = useState(null);
 
-let finalUrl;
+  // ✅ Construye la URL final del PDF
+  let finalUrl = "";
+  if (!pdfUrl) {
+    console.warn("❌ URL PDF inválida:", pdfUrl);
+  } else if (pdfUrl.startsWith("http://") || pdfUrl.startsWith("https://")) {
+    const isProd = process.env.ENVIRONMENT === "production";
+    finalUrl = isProd ? pdfUrl.replace("http://", "https://") : pdfUrl;
+  } else {
+    const base = process.env.NODE_ENV === "production"
+      ? process.env.NEXT_PUBLIC_API_URL
+      : "http://localhost:8000/uploads";
+    finalUrl = `${base}/${pdfUrl}`;
+  }
 
-if (!pdfUrl) {
-  console.warn("❌ URL PDF inválida:", pdfUrl);
-  finalUrl = "";
-} else if (pdfUrl.startsWith("http://") || pdfUrl.startsWith("https://")) {
-  // ✅ Usa la URL tal como está si es absoluta
-  const isProd = process.env.ENVIRONMENT === "production";
-  finalUrl = isProd ? pdfUrl.replace("http://", "https://") : pdfUrl;
-} else {
-  // Si es relativa, complétala con el dominio de la API
-  const base = process.env.NODE_ENV === "production"
-  ? process.env.NEXT_PUBLIC_API_URL
-  : "http://localhost:8000/uploads";
+  console.log("📄 URL PDF final usada:", finalUrl);
 
-finalUrl = `${base}/${userId}/${filename}`;
-}
+  // ✅ Fetcher que incluye token desde el contexto
+  const fetchPDFWithAuth = async (url) => {
+    if (!token) {
+      console.warn("⚠️ Token no disponible en contexto.");
+      return null;
+    }
 
-console.log("📄 URL PDF final usada:", finalUrl);
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
+      if (!response.ok) {
+        console.error("❌ Error al obtener PDF:", response.status);
+        return null;
+      }
 
+      const blob = await response.blob();
+      return blob;
+    } catch (error) {
+      console.error("❌ Error en fetch:", error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    if (finalUrl && token) {
+      fetchPDFWithAuth(finalUrl).then((blob) => {
+        if (blob) setPdfFile(blob);
+      });
+    }
+  }, [finalUrl, token]);
 
   return (
     <div className="w-full max-w-5xl mx-auto">
@@ -53,17 +86,11 @@ console.log("📄 URL PDF final usada:", finalUrl);
       </div>
 
       <div className={`overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200
-  w-full px-2 rounded-lg shadow-inner border-[5px] border-dashed border-gray-400 rounded-2xl p-8 text-center transition-colors duration-300
-  ${darkMode ? "bg-[#0B1120]" : "text-gray-900"}`}
+        w-full px-2 rounded-lg shadow-inner border-[5px] border-dashed border-gray-400 rounded-2xl p-8 text-center transition-colors duration-300
+        ${darkMode ? "bg-[#0B1120]" : "text-gray-900"}`}
       >
-
-
-
-        {finalUrl ? (
-          <Document
-            file={finalUrl}
-            onLoadSuccess={onLoadSuccess}
-          >
+        {pdfFile ? (
+          <Document file={pdfFile} onLoadSuccess={onLoadSuccess}>
             <div className="grid grid-cols-1 md:flex md:w-fit gap-4 py-1">
               {Array.from({ length: numPages }, (_, index) => {
                 const pageNum = index + 1;
