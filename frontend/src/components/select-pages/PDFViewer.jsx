@@ -16,58 +16,39 @@ export default function PDFViewer({
 }) {
   const { darkMode } = useTheme();
   const { token } = useAuth();
-  const [pdfFile, setPdfFile] = useState(null);
+  const [pdfBlob, setPdfBlob] = useState(null);
 
-  // ✅ Construye la URL final del PDF
-  let finalUrl = "";
-  if (!pdfUrl) {
-    console.warn("❌ URL PDF inválida:", pdfUrl);
-  } else if (pdfUrl.startsWith("http://") || pdfUrl.startsWith("https://")) {
-    const isProd = process.env.ENVIRONMENT === "production";
-    finalUrl = isProd ? pdfUrl.replace("http://", "https://") : pdfUrl;
-  } else {
-    const base = process.env.NODE_ENV === "production"
-      ? process.env.NEXT_PUBLIC_API_URL
-      : "http://localhost:8000/uploads";
-    finalUrl = `${base}/${pdfUrl}`;
-  }
-
-  console.log("📄 URL PDF final usada:", finalUrl);
-
-  // ✅ Fetcher que incluye token desde el contexto
-  const fetchPDFWithAuth = async (url) => {
-    if (!token) {
-      console.warn("⚠️ Token no disponible en contexto.");
-      return null;
-    }
-
-    try {
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        console.error("❌ Error al obtener PDF:", response.status);
-        return null;
+  // ✅ Fetch PDF como Blob incluyendo el token
+  useEffect(() => {
+    const fetchPDF = async () => {
+      if (!pdfUrl || !token) {
+        console.warn("⛔ PDF URL o token no disponible");
+        return;
       }
 
-      const blob = await response.blob();
-      return blob;
-    } catch (error) {
-      console.error("❌ Error en fetch:", error);
-      return null;
-    }
-  };
+      const finalUrl = pdfUrl.replace("http://", "https://"); // fuerza HTTPS en prod
 
-  useEffect(() => {
-    if (finalUrl && token) {
-      fetchPDFWithAuth(finalUrl).then((blob) => {
-        if (blob) setPdfFile(blob);
-      });
-    }
-  }, [finalUrl, token]);
+      try {
+        const response = await fetch(finalUrl, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          console.error("❌ Error al obtener el PDF:", response.status);
+          return;
+        }
+
+        const blob = await response.blob();
+        setPdfBlob(blob);
+      } catch (err) {
+        console.error("❌ Error en la descarga del PDF:", err);
+      }
+    };
+
+    fetchPDF();
+  }, [pdfUrl, token]);
 
   return (
     <div className="w-full max-w-5xl mx-auto">
@@ -89,8 +70,8 @@ export default function PDFViewer({
         w-full px-2 rounded-lg shadow-inner border-[5px] border-dashed border-gray-400 rounded-2xl p-8 text-center transition-colors duration-300
         ${darkMode ? "bg-[#0B1120]" : "text-gray-900"}`}
       >
-        {pdfFile ? (
-          <Document file={pdfFile} onLoadSuccess={onLoadSuccess}>
+        {pdfBlob ? (
+          <Document file={pdfBlob} onLoadSuccess={onLoadSuccess}>
             <div className="grid grid-cols-1 md:flex md:w-fit gap-4 py-1">
               {Array.from({ length: numPages }, (_, index) => {
                 const pageNum = index + 1;
