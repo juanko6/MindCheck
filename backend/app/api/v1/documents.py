@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-
+from dotenv import load_dotenv
 from fastapi import APIRouter, Request, UploadFile, File, Depends, HTTPException
 from fastapi.responses import FileResponse
 from httpcore import request
@@ -12,7 +12,7 @@ from app.models.user import User
 from app.models.document import Document
 
 router = APIRouter(prefix="/api/v1/documents", tags=["documents"])
-
+load_dotenv()
 
 @router.post("/upload", response_model=dict)
 async def upload_document(
@@ -41,12 +41,10 @@ async def upload_document(
 
     # ✅ Forzar HTTPS si estás en producción
     raw_base_url = str(request.base_url).rstrip("/")
-    if os.getenv("ENVIRONMENT") == "production":
-        base_url = raw_base_url.replace("http://", "https://")
-    else:
-        base_url = raw_base_url
+    if os.getenv("ENVIRONMENT") == "production" and raw_base_url.startswith("http://"):
+        raw_base_url = raw_base_url.replace("http://", "https://")
 
-    file_url = f"{base_url}/api/v1/documents/view/{current_user.id}/{file.filename.replace(' ', '%20')}"
+    file_url = f"{raw_base_url}/api/v1/documents/view/{current_user.id}/{file.filename.replace(' ', '%20')}"
 
 
     return {
