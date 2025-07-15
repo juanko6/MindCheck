@@ -19,6 +19,7 @@ export default function SelectPagesStep() {
   const { token, user, loading } = useAuth();
 
   const [pdfUrl, setPdfUrl] = useState('');
+  const [path, setPath] = useState('');
   const [nivelDificultad, setNivelDificultad] = useState("Modo Relax");
   const [numPages, setNumPages] = useState(null);
   const [paginasSeleccionadas, setPaginasSeleccionadas] = useState([]);
@@ -34,21 +35,24 @@ export default function SelectPagesStep() {
 
 
   useEffect(() => {
-    if (!loading && !token) {
+    if (!router.isReady || loading) return;
+
+    if (!token) {
       router.push("/login");
       return;
     }
 
-    const { pdfUrl } = router.query;
+    const { pdfUrl, path } = router.query;
 
-    if (!pdfUrl) {
+    if (!pdfUrl || !path) {
       alert("Faltan datos para continuar. Regresando al inicio.");
       router.push('/client/upload');
       return;
     }
 
     setPdfUrl(pdfUrl);
-  }, [loading, token, router.query]);
+    setPath(path);
+  }, [router.isReady, loading, token, router.query]);
 
   const handleDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
