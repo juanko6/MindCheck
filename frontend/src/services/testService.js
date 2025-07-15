@@ -21,7 +21,7 @@ export async function saveTest(token, title, data) {
  * @param {string} token - Token JWT
  */
 export async function generateTest(datos, token) {
-  const res = await fetch(`${API}/generate`, {
+  const res = await fetch(`${API}generate`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -38,7 +38,7 @@ export async function generateTest(datos, token) {
  * Obtiene un test por su ID.
  */
 export async function getTestById(testId, token) {
-  const res = await fetch(`${API}/${testId}`, {
+  const res = await fetch(`${API}${testId}`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -59,7 +59,7 @@ export async function fetchUserTests(token) {
 }
 
 export async function submitTestResult(testId, respuestas, porcentaje, token) {
-  const res = await fetch(`${API}/${testId}/submit`, {
+  const res = await fetch(`${API}${testId}/submit`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -73,7 +73,7 @@ export async function submitTestResult(testId, respuestas, porcentaje, token) {
 }
 
 export async function fetchTestHistory(token) {
-  const res = await fetch(`${API}/history`, {
+  const res = await fetch(`${API}history`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`, 
