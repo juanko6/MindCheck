@@ -10,6 +10,7 @@ const menuItems = [
   { icon: "/assets/dashboard/ic-brain.svg", label: "Generar", route: "/client/upload" },
   { icon: "/assets/dashboard/ic-profile.svg", label: "Perfil", route: "/client/profile" },
   { icon: "/assets/dashboard/ic-results.svg", label: "Resultados", route: "/client/story" },
+    { icon: "/assets/dashboard/ic-upload.svg", label: "Documentos", route: "/client/my-documents" },
   { icon: "/assets/dashboard/ic-shop.svg", label: "Tienda", route: "/client/shop" },
 ];
 

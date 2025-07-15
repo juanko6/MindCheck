@@ -2,7 +2,7 @@
 import axios from "axios";
 import { API_BASE } from "./config";
 
-const TEST_CONTROLLER_BASE = `${API_BASE}testController`;
+const TEST_CONTROLLER_BASE = `${API_BASE}/testController`;
 console.log("API URL usada:", API_BASE);
 /**
  * Sube un archivo PDF al backend para generar preguntas.

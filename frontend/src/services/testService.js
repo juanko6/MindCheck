@@ -1,6 +1,6 @@
 import { API_BASE } from "./config";
 
-const API_URL = `${API_BASE}tests/`;  // slash final necesario
+const API_URL = `${API_BASE}/tests/`;  // slash final necesario
 
 export async function saveTest(token, title, data) {
   const res = await fetch(API_URL, {
