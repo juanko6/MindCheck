@@ -30,7 +30,7 @@ export default function UploadFilePage() {
       query: {
         pdfUrl: fileUrl,
         path,
-        documentId: document_id,
+        document_id,
       },
     });
   };
