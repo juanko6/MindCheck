@@ -18,10 +18,10 @@ export default function UploadFilePage() {
   }, [loading, token]);
 
   const handleUploadSuccess = (uploadResponse) => {
-    const { fileUrl, path } = uploadResponse;
+    const { fileUrl, path, document_id } = uploadResponse;
 
-    if (!path || !fileUrl) {
-      alert("Error: no se recibió la ruta del archivo.");
+    if (!path || !fileUrl || !document_id) {
+      alert("Error: datos incompletos al subir el archivo.");
       return;
     }
 
@@ -30,6 +30,7 @@ export default function UploadFilePage() {
       query: {
         pdfUrl: fileUrl,
         path,
+        documentId: document_id,
       },
     });
   };
