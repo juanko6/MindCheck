@@ -26,10 +26,13 @@ export default function PDFViewer({
         return;
       }
 
-      const finalUrl = pdfUrl.replace("http://", "https://"); // fuerza HTTPS en prod
+      const isProd = process.env.NODE_ENV === "production";
+      const secureUrl = isProd ? pdfUrl.replace(/^http:\/\//, "https://") : pdfUrl;
+
+      console.log("📄 URL final usada para fetch:", secureUrl);
 
       try {
-        const response = await fetch(finalUrl, {
+        const response = await fetch(secureUrl, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

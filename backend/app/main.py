@@ -30,7 +30,6 @@ if os.getenv("ENVIRONMENT") != "production":
     app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 
-
 # Registrar rutas
 app.include_router(auth.router)
 app.include_router(testController.router)

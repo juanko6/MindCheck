@@ -11,18 +11,17 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 UPLOADS_PATH = Path("uploads")  # Ajusta si tu ruta de carga es diferente
 
-async def generar_preguntas_desde_pdf(pdf_url: str, paginas: list, cantidad: int, dificultad: str):
+async def generar_preguntas_desde_pdf(pdf_path: str, paginas: list, cantidad: int, dificultad: str):
     """
     Extrae texto desde las páginas seleccionadas del PDF y genera preguntas con IA.
     """
-    filename = PurePath(unquote(pdf_url)).name
-    pdf_path = UPLOADS_PATH / filename
-    if not pdf_path.exists():
-        raise FileNotFoundError(f"PDF no encontrado en: {pdf_path}")
+    real_path = Path(pdf_path)
+    if not real_path.exists():
+        raise FileNotFoundError(f"PDF no encontrado en: {real_path}")
 
     texto_total = ""
     try:
-        doc = fitz.open(pdf_path)
+        doc = fitz.open(real_path)
         for num in paginas:
             page_index = int(num) - 1  # fitz usa 0-based
             if 0 <= page_index < len(doc):

@@ -15,6 +15,7 @@ from app.services.test_service import create_test, get_test_by_id, get_user_test
 from app.services.openai_service import generar_preguntas_desde_pdf
 from app.services.token_service import descontar_tokens_usuario
 from app.services.test_result_service import submit_test_result
+from app.models.document import Document
 
 router = APIRouter(prefix="/api/v1/tests", tags=["tests"])
 
@@ -57,7 +58,7 @@ async def get_test_history(
     ]
 
 class GenerateTestDTO(BaseModel):
-    pdf_url: str
+    document_id: int
     paginas: List[int]
     numero_preguntas: int
     dificultad: str
@@ -67,15 +68,24 @@ async def generate_test(
     datos: GenerateTestDTO,
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user)
-    ):
-    print("🟢 Datos recibidos en generate_test:", datos.dict())  # <--- agrega esto
-    
+):
+    print("🟢 Datos recibidos en generate_test:", datos.dict())
+
+    # Verifica tokens disponibles
     costo = len(datos.paginas) * 10
     if not user.tokens or user.tokens < costo:
         raise HTTPException(status_code=400, detail="No tienes suficientes tokens")
 
+    # Obtiene documento por ID y valida que sea del usuario
+    result = await db.execute(select(Document).where(Document.id == datos.document_id))
+    document = result.scalar_one_or_none()
+
+    if not document or document.owner_id != user.id:
+        raise HTTPException(status_code=403, detail="Documento no válido o no autorizado")
+
+    # Genera preguntas desde archivo local
     preguntas = await generar_preguntas_desde_pdf(
-        pdf_url=datos.pdf_url,
+        pdf_path=document.path,  # 🟢 usa ruta real
         paginas=datos.paginas,
         cantidad=datos.numero_preguntas,
         dificultad=datos.dificultad
@@ -84,11 +94,13 @@ async def generate_test(
     if not preguntas:
         raise HTTPException(status_code=500, detail="Error generando preguntas")
 
+    # Descontar tokens
     await descontar_tokens_usuario(db=db, user=user, cantidad=costo)
 
+    # Crear test
     test = await create_test(
         user_id=user.id,
-        title=f"Test de PDF: {datos.pdf_url}",
+        title=f"Test de PDF: {document.filename}",
         dificultad=datos.dificultad,
         data=preguntas,
         db=db
@@ -97,7 +109,7 @@ async def generate_test(
     return {
         "dificultad": test.dificultad,
         "testId": test.id
-        }
+    }
 
 
 @router.get("/{test_id}")
