@@ -1,4 +1,4 @@
-const API = process.env.NEXT_PUBLIC_API_URL + "/tests";
+const API = process.env.NEXT_PUBLIC_API_URL + "/tests/";
 
 export async function saveTest(token, title, data) {
   const res = await fetch(API, {
