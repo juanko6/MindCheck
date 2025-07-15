@@ -43,7 +43,9 @@ export default function DragAndDropUploader({ onUploadSuccess }) {
         setUploadProgress(percentCompleted);
       });
 
-      console.log("📄📄📄📄 Upload Response:", uploadResponse);
+      
+
+      console.log("📄📄 Upload Response:", uploadResponse);
       
       // ✅ Enviar objeto completo con fileUrl y path
       onUploadSuccess(uploadResponse);
