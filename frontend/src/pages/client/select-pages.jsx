@@ -39,17 +39,20 @@ export default function SelectPagesStep() {
       return;
     }
 
-    const pdf = localStorage.getItem('pdfUrl');
-    if (!pdf) {
+    const queryPdfUrl = router.query.pdfUrl;
+    const queryPath = router.query.path;
+
+    if (!queryPdfUrl || !queryPath) {
       alert("Faltan datos para continuar. Regresando al inicio.");
       router.push('/client/upload');
       return;
     }
 
-    setPdfUrl(pdf);
-  }, [loading, token]);
+    setPdfUrl(queryPdfUrl);
+    setPath(queryPath);
+  }, [loading, token, router]);
 
-  const handleDocumentLoadSuccess = ({ numPages }) => {
+    const handleDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
   };
 
@@ -86,16 +89,16 @@ export default function SelectPagesStep() {
     }
 
     try {
-      
+
       const preguntasPorModo = modos.find(m => m.label === nivelDificultad)?.preguntas || 7;
 
       const response = await generateTest({
-        pdf_url: pdfUrl,
+        pdf_url: path,
         paginas: paginasSeleccionadas,
         numero_preguntas: preguntasPorModo,
         dificultad: nivelDificultad,
       }, token);
-      console.log("Enviando token:", token);
+      console.log("direccion pdf_url:", path);
 
       const testId = response.testId;
 

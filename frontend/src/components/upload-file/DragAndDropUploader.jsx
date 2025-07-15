@@ -38,16 +38,15 @@ export default function DragAndDropUploader({ onUploadSuccess }) {
     setUploadSuccess(false);
 
     try {
-      const { fileUrl } = await uploadPDF(file, token, (progressEvent) => {
+      const uploadResponse = await uploadPDF(file, token, (progressEvent) => {
         const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
         setUploadProgress(percentCompleted);
       });
 
-      console.log("📄📄📄📄 fileUrl", fileUrl);
-      onUploadSuccess(fileUrl);
-      setTimeout(() => {
-        onUploadSuccess(fileUrl);  // ✅ usa la nueva propiedad
-      }, 1000);
+      console.log("📄📄📄📄 Upload Response:", uploadResponse);
+      
+      // ✅ Enviar objeto completo con fileUrl y path
+      onUploadSuccess(uploadResponse);
     } catch (error) {
       console.error("Error al subir el PDF:", error);
       alert("❌ Error subiendo el archivo. Intenta con un PDF más pequeño.");
@@ -58,8 +57,6 @@ export default function DragAndDropUploader({ onUploadSuccess }) {
 
   return (
     <div className="w-full max-w-3xl mx-auto flex flex-col items-center">
-
-
       {/* Zona de carga */}
       <div
         onDrop={handleDrop}

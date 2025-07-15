@@ -17,9 +17,22 @@ export default function UploadFilePage() {
     }
   }, [loading, token]);
 
-  const handleUploadSuccess = (pdfUrl) => {
-    localStorage.setItem('pdfUrl', pdfUrl);
-    router.push('/client/select-pages');
+  const handleUploadSuccess = (uploadResponse) => {
+    // Asegúrate de recibir todo el objeto completo (no solo `fileUrl`)
+    const { path } = uploadResponse;
+
+    if (!path) {
+      alert("Error: no se recibió la ruta del archivo.");
+      return;
+    }
+
+    router.push({
+      pathname: '/client/select-pages',
+      query: {
+        pdfUrl,
+        path,
+      },
+    });
   };
 
   if (loading || !token) return <CircularLoader />;

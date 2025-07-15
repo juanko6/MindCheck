@@ -51,7 +51,8 @@ async def upload_document(
         "message": "Documento subido correctamente",
         "document_id": db_doc.id,
         "filename": db_doc.filename,
-        "fileUrl":  file_url
+        "fileUrl":  file_url,
+        "path": db_doc.path
 
     }
 
