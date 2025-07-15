@@ -1,4 +1,6 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL + "/auth";
+import { API_BASE } from "./config"
+
+const API_URL = `${API_BASE}auth`;
 
 export async function login(identifier, password) {
   const res = await fetch(`${API_URL}/login`, {

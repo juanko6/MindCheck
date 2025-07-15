@@ -1,7 +1,9 @@
-const API = process.env.NEXT_PUBLIC_API_URL + "/tests/";
+import { API_BASE } from "./config";
+
+const API_URL = `${API_BASE}tests/`;  // slash final necesario
 
 export async function saveTest(token, title, data) {
-  const res = await fetch(API, {
+  const res = await fetch(API_URL, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -21,7 +23,7 @@ export async function saveTest(token, title, data) {
  * @param {string} token - Token JWT
  */
 export async function generateTest(datos, token) {
-  const res = await fetch(`${API}generate`, {
+  const res = await fetch(`${API_URL}generate`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -38,7 +40,7 @@ export async function generateTest(datos, token) {
  * Obtiene un test por su ID.
  */
 export async function getTestById(testId, token) {
-  const res = await fetch(`${API}${testId}`, {
+  const res = await fetch(`${API_URL}${testId}`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -50,7 +52,7 @@ export async function getTestById(testId, token) {
 }
 
 export async function fetchUserTests(token) {
-  const res = await fetch(`${API}`, {
+  const res = await fetch(`${API_URL}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -59,7 +61,7 @@ export async function fetchUserTests(token) {
 }
 
 export async function submitTestResult(testId, respuestas, porcentaje, token) {
-  const res = await fetch(`${API}${testId}/submit`, {
+  const res = await fetch(`${API_URL}${testId}/submit`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -73,7 +75,7 @@ export async function submitTestResult(testId, respuestas, porcentaje, token) {
 }
 
 export async function fetchTestHistory(token) {
-  const res = await fetch(`${API}history`, {
+  const res = await fetch(`${API_URL}history`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`, 
