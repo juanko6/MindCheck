@@ -19,6 +19,7 @@ export default function SelectPagesStep() {
   const { token, user, loading } = useAuth();
 
   const [pdfUrl, setPdfUrl] = useState('');
+  const [documentId, setDocumentId] = useState(null);
   const [path, setPath] = useState('');
   const [nivelDificultad, setNivelDificultad] = useState("Modo Relax");
   const [numPages, setNumPages] = useState(null);
@@ -42,7 +43,7 @@ export default function SelectPagesStep() {
       return;
     }
 
-    const { pdfUrl, path } = router.query;
+    const { pdfUrl, path, documentId } = router.query;
 
     if (!pdfUrl || !path) {
       alert("Faltan datos para continuar. Regresando al inicio.");
@@ -52,6 +53,7 @@ export default function SelectPagesStep() {
 
     setPdfUrl(pdfUrl);
     setPath(path);
+    setDocumentId(parseInt(documentId));
   }, [router.isReady, loading, token, router.query]);
 
   const handleDocumentLoadSuccess = ({ numPages }) => {
@@ -95,7 +97,7 @@ export default function SelectPagesStep() {
       const preguntasPorModo = modos.find(m => m.label === nivelDificultad)?.preguntas || 7;
 
       const response = await generateTest({
-        pdf_url: path,
+        document_id: documentId,
         paginas: paginasSeleccionadas,
         numero_preguntas: preguntasPorModo,
         dificultad: nivelDificultad,
