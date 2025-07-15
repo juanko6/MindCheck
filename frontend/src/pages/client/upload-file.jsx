@@ -18,10 +18,9 @@ export default function UploadFilePage() {
   }, [loading, token]);
 
   const handleUploadSuccess = (uploadResponse) => {
-    // Asegúrate de recibir todo el objeto completo (no solo `fileUrl`)
-    const { path } = uploadResponse;
+    const { fileUrl, path } = uploadResponse;
 
-    if (!path) {
+    if (!path || !fileUrl) {
       alert("Error: no se recibió la ruta del archivo.");
       return;
     }
@@ -29,11 +28,12 @@ export default function UploadFilePage() {
     router.push({
       pathname: '/client/select-pages',
       query: {
-        pdfUrl,
+        pdfUrl: fileUrl,
         path,
       },
     });
   };
+
 
   if (loading || !token) return <CircularLoader />;
 
