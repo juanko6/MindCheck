@@ -1,7 +1,8 @@
 // services/api.js
 import axios from "axios";
+import { API_BASE } from "./config";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL + "/testController";
+const TEST_CONTROLLER_BASE = `${API_BASE}testController`;
 console.log("API URL usada:", API_BASE);
 /**
  * Sube un archivo PDF al backend para generar preguntas.
@@ -14,7 +15,7 @@ export const uploadPDF = async (file, token, onProgress) => {
   formData.append("file", file);
 
   const response = await axios.post(
-    `${process.env.NEXT_PUBLIC_API_URL}/documents/upload`,
+    `${API_BASE}/documents/upload`,
     formData,
     {
       headers: {
@@ -41,7 +42,7 @@ export const uploadPDF = async (file, token, onProgress) => {
  */
 export const getExplanation = async (pregunta, respuestaCorrecta) => {
   try {
-    const response = await axios.post(`${API_BASE}/explain`, {
+    const response = await axios.post(`${TEST_CONTROLLER_BASE}/explain`, {
       question: pregunta,
       correctAnswer: respuestaCorrecta,
     });
@@ -64,7 +65,7 @@ export const generateQuestionsFromPdf = async (pdfUrl, paginas, numeroPreguntas,
   // Extrae solo el nombre del archivo de la URL
   const filename = decodeURIComponent(pdfUrl.split("/").pop());
 
-  const response = await axios.post(`${API_BASE}/generate-questions`, {
+  const response = await axios.post(`${TEST_CONTROLLER_BASE}/generate-questions`, {
     pdfUrl: filename,  // 👈 solo el nombre, no la ruta completa
     paginas,
     numeroPreguntas,
