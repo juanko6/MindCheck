@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/context/AuthContext";
-import { fetchUserTests } from "@/services/testService";
+//import { fetchUserTests } from "@/services/testService";
 import { fetchUserData } from "@/services/userService";
 import Layout from "@/components/dashboard/Layout";
 import { useTheme } from "@/context/ThemeContext"; // ✅ NUEVO
@@ -25,9 +25,9 @@ export default function Dashboard() {
         .then(setUserData)
         .catch(() => logout());
 
-      fetchUserTests(token)
+/*       fetchUserTests(token)
         .then(setTests)
-        .catch(console.error);
+        .catch(console.error); */
     }
   }, [token]);
 

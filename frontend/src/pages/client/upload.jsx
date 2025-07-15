@@ -20,8 +20,13 @@ export default function UploaderPage() {
       router.push("/login");
     } else if (token) {
       fetchUserTests(token)
-        .then(setTests)
-        .catch((e) => console.error("Error cargando tests:", e));
+        .then((data) => {
+          console.log("📦 Tests recibidos desde backend:", data);
+          setTests(data);
+        })
+        .catch((e) => {
+          console.error("❌ Error cargando tests:", e);
+        });
     }
   }, [loading, token]);
 
