@@ -38,17 +38,18 @@ export default function DragAndDropUploader({ onUploadSuccess }) {
     setUploadSuccess(false);
 
     try {
-      const uploadResponse = await uploadPDF(file, token, (progressEvent) => {
+      const { fileUrl, path, documentId } = await uploadPDF(file, token, (progressEvent) => {
         const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
         setUploadProgress(percentCompleted);
       });
 
-      
+      if (!fileUrl || !path || !documentId) {
+        alert("❌ Error: datos incompletos al subir el archivo.");
+        return;
+      }
 
-      console.log("📄📄 Upload Response:", uploadResponse);
-      
-      // ✅ Enviar objeto completo con fileUrl y path
-      onUploadSuccess(uploadResponse);
+      console.log("📄📄📄📄 Upload Response: ", { fileUrl, path, documentId });
+      onUploadSuccess({ fileUrl, path, documentId }); // ✅ pasas todo
     } catch (error) {
       console.error("Error al subir el PDF:", error);
       alert("❌ Error subiendo el archivo. Intenta con un PDF más pequeño.");
