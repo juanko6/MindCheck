@@ -3,7 +3,9 @@ FROM node:23-alpine AS builder
 WORKDIR /app
 
 ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_STATIC_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_STATIC_URL=$NEXT_PUBLIC_STATIC_URL
 
 # 1. Sólo los manifests => capa cacheable
 COPY package.json ./  
@@ -15,7 +17,7 @@ RUN npm ci --no-audit --progress=false
 RUN npx next telemetry disable
 
 COPY . .
-RUN npm run build
+RUN NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL NEXT_PUBLIC_STATIC_URL=$NEXT_PUBLIC_STATIC_URL npm run build
 
 # Etapa de producción
 FROM node:23-alpine
