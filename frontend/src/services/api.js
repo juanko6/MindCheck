@@ -25,11 +25,12 @@ export const uploadPDF = async (file, token, onProgress) => {
     }
   );
 
-  const { fileUrl, path  } = response.data;
+  const { fileUrl, path, document_id  } = response.data;
   console.log("✅ fileUrl recibido:", fileUrl); // <-- Añade esto para verificar
   console.log("🛣️ path recibido:", path);
+  console.log("🆔 document_id recibido:", document_id);
 
-  return { fileUrl, path }; // ✅ ahora sí retornamos el valor esperado
+  return { fileUrl, path, documentId: document_id }; // ✅ ahora sí retornamos el valor esperado
 };
 
 /**
