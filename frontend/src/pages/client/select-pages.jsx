@@ -39,20 +39,18 @@ export default function SelectPagesStep() {
       return;
     }
 
-    const queryPdfUrl = router.query.pdfUrl;
-    const queryPath = router.query.path;
+    const { pdfUrl } = router.query;
 
-    if (!queryPdfUrl || !queryPath) {
+    if (!pdfUrl) {
       alert("Faltan datos para continuar. Regresando al inicio.");
       router.push('/client/upload');
       return;
     }
 
-    setPdfUrl(queryPdfUrl);
-    setPath(queryPath);
-  }, [loading, token, router]);
+    setPdfUrl(pdfUrl);
+  }, [loading, token, router.query]);
 
-    const handleDocumentLoadSuccess = ({ numPages }) => {
+  const handleDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
   };
 
