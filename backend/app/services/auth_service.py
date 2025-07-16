@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.models.user import User
 from app.core.security import hash_password, verify_password
+from app.config import ALLOWED_EMAIL_DOMAINS
 
 async def get_user_by_email(email: str, db: AsyncSession):
     result = await db.execute(select(User).where(User.email == email))
@@ -14,7 +15,18 @@ async def get_user_by_username(username: str, db: AsyncSession):
     return result.scalar_one_or_none()
 
 
+def is_institutional_email(email: str) -> bool:
+    domain = email.split("@")[-1].lower()
+    return domain in ALLOWED_EMAIL_DOMAINS
+
 async def create_user(username: str, first_name: str, last_name: str, email: str, password: str, db: AsyncSession):
+    
+    if not is_institutional_email(email):
+        raise HTTPException(
+            status_code=400,
+            detail="Solo se permiten correos institucionales para registrarse."
+        )
+
     existing_user = await get_user_by_email(email, db)
     if existing_user:
         raise HTTPException(status_code=409, detail="Ya existe una cuenta con este correo.")
