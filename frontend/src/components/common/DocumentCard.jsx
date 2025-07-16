@@ -24,7 +24,7 @@ export default function DocumentCard({ doc, onView, onDelete }) {
           fullWidth={true}
           withBorder={false}
           className="hover:bg-yellow-300 w-full"
-          onClick={() => onView(doc.url)}
+          onClick={() => onView(doc)}
         >
           Ver
         </DashedButton>
