@@ -14,10 +14,23 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const router = useRouter();
+  const allowedDomains = ["gcloud.ua.es", "uceva.edu.co"];
+
+  
+  function isInstitutionalEmail(email) {
+    const domain = email.split("@")[1];
+    return allowedDomains.includes(domain);
+  }
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+
+    if (!isInstitutionalEmail(email)) {
+      setError("Debes usar un correo institucional válido.");
+      return;
+    }
     try {
       await register({
         username,
@@ -35,13 +48,18 @@ export default function RegisterPage() {
         showConfirmButton: false,
       });
     } catch (err) {
+      const errorMessage =
+        err?.response?.data?.detail || "Ocurrió un error inesperado.";
+
       Swal.fire({
         icon: "error",
         title: "Error al registrar",
-        text: err.message,
+        text: errorMessage,
       });
+      setError(errorMessage);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-[#F1F3F9] flex items-center justify-center px-4">
