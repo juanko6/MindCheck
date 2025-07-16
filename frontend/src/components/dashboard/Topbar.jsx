@@ -1,24 +1,15 @@
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
-import { fetchUserData } from "@/services/userService";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/router";
 
 export default function Topbar() {
   const router = useRouter();
-  const { token, logout } = useAuth();
+  const { user, logout } = useAuth();
   const { darkMode, toggleDarkMode } = useTheme();
-  const [userData, setUserData] = useState(null);
+  
 
-  useEffect(() => {
-    if (token) {
-      fetchUserData(token)
-        .then(setUserData)
-        .catch(() => logout());
-    }
-  }, [token, router.asPath]);
 
   return (
     <header
@@ -30,7 +21,7 @@ export default function Topbar() {
       <div className="flex items-center gap-2">
         <Image src="/assets/token-bag.svg" alt="Tokens" width={24} height={24} />
         <span className="font-semibold text-sm">
-          Tokens: {userData ? userData.tokens : "..."}
+          Tokens: {user ? user.tokens : "..."}
         </span>
       </div>
 
