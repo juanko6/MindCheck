@@ -27,3 +27,48 @@ class UserLogin(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+
+# ============ NUEVOS SCHEMAS PARA VERIFICACIÓN ============
+
+class UserRegister(BaseModel):
+    """Schema para registro simplificado solo con email y password"""
+    email: EmailStr
+    password: Annotated[str, constr(min_length=8, pattern=password_regex)]
+
+class VerifyEmailRequest(BaseModel):
+    """Schema para verificar código de email"""
+    email: EmailStr
+    code: str  # ✅ Sin validador por ahora para debug
+    
+    # ✅ Validación manual más flexible
+    @field_validator("code")
+    @classmethod
+    def validate_code(cls, v):
+        # Limpiar espacios
+        v = v.strip()
+        
+        # Verificar que sea numérico
+        if not v.isdigit():
+            raise ValueError("El código debe contener solo números")
+        
+        # Verificar longitud
+        if len(v) != 6:
+            raise ValueError(f"El código debe tener 6 dígitos, recibido: {len(v)}")
+        
+        return v
+
+class ResendCodeRequest(BaseModel):
+    """Schema para reenviar código de verificación"""
+    email: EmailStr
+
+
+class RegisterResponse(BaseModel):
+    """Schema para respuesta de registro"""
+    message: str
+    email: str
+
+
+class MessageResponse(BaseModel):
+    """Schema genérico para mensajes de respuesta"""
+    message: str
