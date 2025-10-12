@@ -93,3 +93,16 @@ export async function fetchTestHistory(token) {
   return res.json();
 }
 
+export async function generateTestFromText(datos, token) {
+  const res = await fetch(`${API_URL}generate-from-text`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(datos),
+  });
+
+  if (!res.ok) throw new Error("Error al generar el test desde texto");
+  return res.json(); // { testId: 123 }
+}

@@ -24,7 +24,7 @@ export default function Profile() {
             {/* Tabs */}
             <div className="flex gap-6 border-b pb-2">
                 <button
-                    className={`pb-1 border-b-2 flex items-center gap-2 ${tab === "datos" ? "border-white font-semibold" : "border-transparent"
+                    className={`pb-1 border-b-2 flex items-center gap-2 rubik-light-italic ${tab === "datos" ? "border-white rubik-semibold-italic" : "border-transparent"
                         }`}
                     onClick={() => setTab("datos")}
                 >
@@ -32,7 +32,7 @@ export default function Profile() {
                     Datos Personales
                 </button>
                 <button
-                    className={`pb-1 border-b-2 ${tab === "suscripcion" ? "border-white font-semibold" : "border-transparent"
+                    className={`pb-1 border-b-2 rubik-light-italic ${tab === "suscripcion" ? "border-white rubik-semibold-italic" : "border-transparent"
                         }`}
                     onClick={() => setTab("suscripcion")}
                 >

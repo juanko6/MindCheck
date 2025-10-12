@@ -9,6 +9,8 @@ import { generateTest } from "@/services/testService";
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import ModeButton from '@/components/select-pages/ModeButton';
+import SkeletonLoader from '@/components/test/SkeletonLoader';
+
 
 
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf-worker/pdf.worker.min.mjs';
@@ -26,6 +28,8 @@ export default function SelectPagesStep() {
   const [paginasSeleccionadas, setPaginasSeleccionadas] = useState([]);
   const [allSelected, setAllSelected] = useState(false);
   const [zoom, setZoom] = useState(200);
+  const [isGenerating, setIsGenerating] = useState(false); // ✅ Estado de loading
+
 
   const modos = [
     { label: "Modo Relax", image: "/assets/dashboard/modo-relax.svg", preguntas: 7 },
@@ -80,6 +84,10 @@ export default function SelectPagesStep() {
   };
 
   const handleContinuar = async () => {
+
+    // ✅ Prevenir múltiples clicks
+    if (isGenerating) return;
+
     if (paginasSeleccionadas.length === 0) {
       alert("Selecciona al menos una página para continuar.");
       return;
@@ -91,6 +99,8 @@ export default function SelectPagesStep() {
       alert(`No tienes suficientes tokens. Necesitas ${costo}, pero tienes ${user?.tokens || 0}.`);
       return;
     }
+
+    setIsGenerating(true); // ✅ Activar loading
 
     try {
 
@@ -111,6 +121,7 @@ export default function SelectPagesStep() {
     } catch (error) {
       console.error("Error generando test:", error);
       alert("Ocurrió un error al generar el test. Intenta nuevamente.");
+      setIsGenerating(false); // ✅ Desactivar loading en caso de error
     }
   };
 
@@ -120,6 +131,11 @@ export default function SelectPagesStep() {
 
   if (loading || !token || !user) {
     return <div className="text-white text-center mt-10">Cargando...</div>;
+  }
+
+  // ✅ Mostrar SkeletonLoader mientras se genera
+  if (isGenerating) {
+    return <SkeletonLoader />;
   }
 
   return (
@@ -165,6 +181,8 @@ export default function SelectPagesStep() {
       <PageSelectionFooter
         onCancel={handleToBack}
         onContinue={handleContinuar}
+        disabled={isGenerating} // ✅ Deshabilitar botón mientras carga
+
       />
     </div>
   );

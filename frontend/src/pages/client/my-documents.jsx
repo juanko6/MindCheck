@@ -55,7 +55,7 @@ export default function MyDocumentsPage() {
         darkMode ? "bg-[#0B1120] text-white" : "bg-white text-gray-900"
       }`}
     >
-      <h1 className="text-2xl font-bold mb-4">Mis Documentos</h1>
+      <h1 className="text-2xl font-bold mb-4 rubik-semibold-italic">Mis Documentos</h1>
       {documents.length === 0 ? (
         <p>No has subido ningún documento.</p>
       ) : (
