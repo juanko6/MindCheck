@@ -1,65 +1,61 @@
+// pages/register.jsx
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/router";
+import { useAuth } from "../context/AuthContext";
 import Image from "next/image";
-import Link from "next/link"
+import Link from "next/link";
 import Swal from 'sweetalert2';
 import CircularLoader from "@/components/common/CircularLoader";
 
 export default function RegisterPage() {
-  const { register } = useAuth();
-  const [username, setUsername] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const { register } = useAuth();  // ✅ Usar desde contexto
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  
   const allowedDomains = ["gcloud.ua.es", "uceva.edu.co"];
-
 
   function isInstitutionalEmail(email) {
     const domain = email.split("@")[1];
     return allowedDomains.includes(domain);
   }
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setError(null);
 
     if (!isInstitutionalEmail(email)) {
       setError("Debes usar un correo institucional válido.");
+      Swal.fire({
+        icon: "error",
+        title: "Email no válido",
+        text: "Debes usar un correo institucional (@gcloud.ua.es o @uceva.edu.co)",
+      });
       return;
     }
 
     setLoading(true);
 
     try {
-      await register({
-        username,
-        first_name: firstName,
-        last_name: lastName,
-        email,
-        password,
-      });
-
+      await register(email, password);  // ✅ Llama al register del contexto
       setLoading(false);
-
+      
       Swal.fire({
         icon: "success",
-        title: "Cuenta creada correctamente",
-        text: "Ya puedes empezar a usar MindCheck",
-        timer: 1500,
+        title: "¡Registro exitoso!",
+        text: "Revisa tu correo para el código de verificación",
+        timer: 2000,
         showConfirmButton: false,
       });
+
+      // El contexto ya guardó el email pendiente
+      router.push("/verify-email");
     } catch (err) {
       setLoading(false);
-      const errorMessage =
-        err?.response?.data?.detail || "Ocurrió un error inesperado.";
-
+      const errorMessage = err.message || "Ocurrió un error inesperado.";
+      
       Swal.fire({
         icon: "error",
         title: "Error al registrar",
@@ -69,10 +65,9 @@ export default function RegisterPage() {
     }
   };
 
-
   return (
     <>
-      {loading && <CircularLoader />} {/* ✅ Muestra loader mientras carga */}
+      {loading && <CircularLoader />}
 
       <div className="min-h-screen bg-[#F1F3F9] flex items-center justify-center px-4">
         <div className="flex flex-col md:flex-row w-full max-w-md md:max-w-4xl rounded-2xl overflow-hidden shadow-lg bg-white">
@@ -102,30 +97,6 @@ export default function RegisterPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
-                type="text"
-                placeholder="Nombre de Usuario"
-                className="w-full p-3 rounded border-2 border-dashed border-gray-400 bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Nombre"
-                className="w-full p-3 rounded border-2 border-dashed border-gray-400 bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Apellido"
-                className="w-full p-3 rounded border-2 border-dashed border-gray-400 bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                required
-              />
-              <input
                 type="email"
                 placeholder="Correo Institucional"
                 className="w-full p-3 rounded border-2 border-dashed border-gray-400 bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -135,15 +106,17 @@ export default function RegisterPage() {
               />
               <input
                 type="password"
-                placeholder="Contraseña"
+                placeholder="Contraseña (mínimo 8 caracteres)"
                 className="w-full p-3 rounded border-2 border-dashed border-gray-400 bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                minLength={8}
               />
               <button
                 type="submit"
-                className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded font-semibold border border-green-700 shadow-sm transition"
+                disabled={loading}
+                className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded font-semibold border border-green-700 shadow-sm transition disabled:opacity-50"
               >
                 Registrarse
               </button>
