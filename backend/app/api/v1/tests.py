@@ -26,6 +26,12 @@ class TestHistoryResponse(BaseModel):
     porcentaje: Optional[int] = None
     dificultad: Optional[str] = None
 
+class GenerateTestFromTextDTO(BaseModel):
+    texto: str
+    numero_preguntas: int
+    dificultad: str
+    titulo_test: str
+
 @router.get("/history", response_model=List[TestHistoryResponse])
 async def get_test_history(
     db: AsyncSession = Depends(get_db),
@@ -33,7 +39,7 @@ async def get_test_history(
 ):
     query = (
         select(
-            TestResult.id,
+            TestResult.test_id,
             Test.title,
             TestResult.created_at,   # 🟢 usamos created_at de TestResult
             TestResult.porcentaje,
@@ -48,13 +54,13 @@ async def get_test_history(
     
     return [
         TestHistoryResponse(
-            id=id_,
+            id=test_id,
             title=title,
             created_at=created_at,
             porcentaje=porcentaje,
             dificultad=dificultad
         )
-        for id_, title, created_at, porcentaje, dificultad in records
+        for test_id, title, created_at, porcentaje, dificultad in records
     ]
 
 class GenerateTestDTO(BaseModel):
@@ -150,3 +156,67 @@ async def submit_test_result_endpoint(
         porcentaje=payload.porcentaje,
         db=db
     )
+
+@router.post("/generate-from-text")
+async def generate_test_from_text(
+    datos: GenerateTestFromTextDTO,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    print("🟢 Datos recibidos en generate_test_from_text:", datos.dict())
+    
+    # Validar que hay texto
+    if not datos.texto or len(datos.texto.strip()) < 100:
+        raise HTTPException(status_code=400, detail="El texto es demasiado corto. Mínimo 100 caracteres.")
+    
+    # Calcular costo basado en palabras (igual que en el frontend)
+    PALABRAS_POR_BLOQUE = 400
+    TOKENS_POR_BLOQUE = 10
+    
+    word_count = len(datos.texto.strip().split())
+    bloques = (word_count + PALABRAS_POR_BLOQUE - 1) // PALABRAS_POR_BLOQUE  # redondeo hacia arriba
+    costo = bloques * TOKENS_POR_BLOQUE
+    
+    # Verificar tokens disponibles
+    if not user.tokens or user.tokens < costo:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"No tienes suficientes tokens. Necesitas {costo}, pero tienes {user.tokens}"
+        )
+    
+    # Generar preguntas desde el texto usando la función existente
+    try:
+        from app.services.openai_service import generar_preguntas
+        
+        preguntas = await generar_preguntas(
+            texto=datos.texto,
+            numero_preguntas=datos.numero_preguntas,
+            nivel_dificultad=datos.dificultad
+        )
+        
+        if not preguntas or not preguntas.get("preguntas"):
+            raise HTTPException(status_code=500, detail="Error generando preguntas")
+        
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        print(f"❌ Error al generar preguntas: {e}")
+        raise HTTPException(status_code=500, detail="Error generando preguntas")
+    
+    # Descontar tokens
+    await descontar_tokens_usuario(db=db, user=user, cantidad=costo)
+    
+    # Crear test
+    test = await create_test(
+        user_id=user.id,
+        title=f"{datos.titulo_test} - {datos.dificultad}",
+        dificultad=datos.dificultad,
+        data=preguntas,
+        db=db
+    )
+    
+    return {
+        "dificultad": test.dificultad,
+        "testId": test.id
+    }
+
