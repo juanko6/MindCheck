@@ -112,7 +112,7 @@ export default function SelectPagesStep() {
         numero_preguntas: preguntasPorModo,
         dificultad: nivelDificultad,
       }, token);
-      console.log("direccion pdf_url:", path);
+      //console.log("direccion pdf_url:", path);
 
       const testId = response.testId;
 

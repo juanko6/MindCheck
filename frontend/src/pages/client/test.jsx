@@ -43,15 +43,15 @@ export default function TestPage() {
 
       try {
         const data = await getTestById(testId, token);  // <-- primero obtén 'data'
-        console.log("Test cargado:", data);
+        //console.log("Test cargado:", data);
 
         if (!data.preguntas || data.preguntas.length === 0) {
           throw new Error("Test inválido");
         }
 
         if (isMounted) {
-          console.log("Preguntas recibidas:", data.preguntas);
-          console.log("📌 Dificultad recibida desde backend:", data.dificultad);
+          //console.log("Preguntas recibidas:", data.preguntas);
+          //console.log("📌 Dificultad recibida desde backend:", data.dificultad);
           setModoSeleccionado(data.dificultad || ""); // ← luego accedes a 'data'
           setQuestions(data.preguntas);
           setCurrentIndex(0);
@@ -94,7 +94,7 @@ export default function TestPage() {
       const enviar = async () => {
         try {
           await submitTestResult(testId, respuestasUsuario, porcentaje, token);
-          console.log("✅ Resultado del test guardado");
+          //console.log("✅ Resultado del test guardado");
           setHasSubmitted(true);
         } catch (err) {
           console.error("❌ No se pudo guardar el resultado:", err);

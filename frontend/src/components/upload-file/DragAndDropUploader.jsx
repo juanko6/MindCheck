@@ -48,7 +48,7 @@ export default function DragAndDropUploader({ onUploadSuccess }) {
         return;
       }
 
-      console.log("📄📄📄📄 Upload Response: ", { fileUrl, path, documentId });
+      //console.log("📄📄📄📄 Upload Response: ", { fileUrl, path, documentId });
       onUploadSuccess({ fileUrl, path, documentId }); // ✅ pasas todo
     } catch (error) {
       console.error("Error al subir el PDF:", error);

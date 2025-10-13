@@ -3,7 +3,7 @@ import axios from "axios";
 import { API_BASE } from "./config";
 
 const TEST_CONTROLLER_BASE = `${API_BASE}/testController`;
-console.log("API URL usada:", API_BASE);
+//console.log("API URL usada:", API_BASE);
 /**
  * Sube un archivo PDF al backend para generar preguntas.
  * @param {File} file - Archivo PDF seleccionado por el usuario.
@@ -27,9 +27,9 @@ export const uploadPDF = async (file, token, onProgress) => {
   );
 
   const { fileUrl, path, document_id  } = response.data;
-  console.log("✅ fileUrl recibido:", fileUrl); // <-- Añade esto para verificar
-  console.log("🛣️ path recibido:", path);
-  console.log("🆔 document_id recibido:", document_id);
+  //console.log("✅ fileUrl recibido:", fileUrl); // <-- Añade esto para verificar
+  //console.log("🛣️ path recibido:", path);
+  //console.log("🆔 document_id recibido:", document_id);
 
   return { fileUrl, path, documentId: document_id }; // ✅ ahora sí retornamos el valor esperado
 };

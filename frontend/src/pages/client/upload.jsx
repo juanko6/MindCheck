@@ -21,7 +21,7 @@ export default function UploaderPage() {
     } else if (token) {
       fetchUserTests(token)
         .then((data) => {
-          console.log("📦 Tests recibidos desde backend:", data);
+          //console.log("📦 Tests recibidos desde backend:", data);
           setTests(data);
         })
         .catch((e) => {

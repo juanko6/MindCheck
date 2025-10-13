@@ -29,7 +29,7 @@ export default function PDFViewer({
       const isProd = process.env.NODE_ENV === "production";
       const secureUrl = isProd ? pdfUrl.replace(/^http:\/\//, "https://") : pdfUrl;
 
-      console.log("📄 URL final usada para fetch:", secureUrl);
+      //console.log("📄 URL final usada para fetch:", secureUrl);
 
       try {
         const response = await fetch(secureUrl, {
