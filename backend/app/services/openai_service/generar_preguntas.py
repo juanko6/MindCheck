@@ -1,3 +1,4 @@
+import os
 import json
 import re
 import fitz  # PyMuPDF
@@ -5,9 +6,14 @@ from urllib.parse import unquote
 from pathlib import PurePath
 from pathlib import Path
 from openai import OpenAI
+
 from app.config import OPENAI_API_KEY
 
 client = OpenAI(api_key=OPENAI_API_KEY)
+
+MODELO_GPT = os.getenv("MODELO_GPT", "gpt-5-nano")
+MAX_CARACTERES = int(os.getenv("MAX_CARACTERES", "1500000"))
+TEMPERATURE = float(os.getenv("TEMPERATURE", "0.3"))
 
 UPLOADS_PATH = Path("uploads")  # Ajusta si tu ruta de carga es diferente
 
@@ -44,7 +50,7 @@ async def generar_preguntas(texto, numero_preguntas=5, nivel_dificultad="Modo Re
     if len(solo_texto) < 100:
         raise ValueError("El contenido parece no ser texto académico.")
 
-    texto = texto[:57000]  # Limitar longitud para prompt
+    texto = texto[:MAX_CARACTERES]  # Limitar longitud para prompt
 
     prompt = f"""
 A partir del siguiente texto académico, genera un ARRAY JSON con {numero_preguntas} preguntas de selección múltiple.
@@ -72,12 +78,12 @@ Texto:
 """
 
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo-0125",
+        model=MODELO_GPT,
         messages=[
             {"role": "system", "content": "Eres un generador de tests en JSON."},
             {"role": "user", "content": prompt}
         ],
-        temperature=0.3,
+        temperature=TEMPERATURE,
     )
 
     preguntas_json = response.choices[0].message.content
