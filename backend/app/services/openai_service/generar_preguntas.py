@@ -44,7 +44,7 @@ async def generar_preguntas(texto, numero_preguntas=5, nivel_dificultad="Modo Re
     if len(solo_texto) < 100:
         raise ValueError("El contenido parece no ser texto académico.")
 
-    texto = texto[:12000]  # Limitar longitud para prompt
+    texto = texto[:57000]  # Limitar longitud para prompt
 
     prompt = f"""
 A partir del siguiente texto académico, genera un ARRAY JSON con {numero_preguntas} preguntas de selección múltiple.

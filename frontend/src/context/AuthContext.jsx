@@ -1,6 +1,7 @@
 // context/AuthContext.js
 import { createContext, useState, useEffect, useContext } from "react";
 import { useRouter } from "next/router";
+import Swal from "sweetalert2";
 import {
   login as loginAPI,
   register as registerAPI,
@@ -18,6 +19,27 @@ export const AuthProvider = ({ children }) => {
   const [pendingVerificationEmail, setPendingVerificationEmail] = useState(null);
   const router = useRouter();
 
+  const handleInvalidToken = () => {
+  localStorage.removeItem("token");
+  setToken(null);
+  setUser(null);
+
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true
+  });
+
+  Toast.fire({
+    icon: 'warning',
+    title: 'Sesión expirada'
+  }).then(() => {
+    router.push("/login");
+  });
+};
+
   const loadUser = async (jwt) => {
     try {
       const data = await fetchUserData(jwt);
@@ -25,20 +47,41 @@ export const AuthProvider = ({ children }) => {
       return data;
     } catch (error) {
       console.error("Error cargando usuario:", error);
+
+      // ✅ Token inválido o expirado: cerrar sesión automáticamente
+      if (error.message.includes("No se pudo cargar el usuario") ||
+        error.message.includes("401") ||
+        error.message.includes("403")) {
+        handleInvalidToken();
+      }
+
       setUser(null);
       throw error;
     }
   };
 
   useEffect(() => {
+        // ✅ Verificar que estamos en el cliente
+    if (typeof window === "undefined") {
+      setLoading(false);
+      return;
+    }
+
     const storedToken = localStorage.getItem("token");
     const storedPendingEmail = localStorage.getItem("pendingVerificationEmail");
 
     if (storedToken) {
       setToken(storedToken);
-      loadUser(storedToken).finally(() => setLoading(false));
+      loadUser(storedToken)
+        .catch((error) => {
+          // Si el token es inválido, limpiarlo
+          console.error("Token inválido, limpiando:", error);
+          localStorage.removeItem("token");
+          setToken(null);
+        })
+        .finally(() => setLoading(false));
     } else {
-      setLoading(false);
+      setLoading(false); // ✅ CRÍTICO: Terminar loading aunque no haya token
     }
 
     if (storedPendingEmail) {
@@ -112,7 +155,7 @@ export const AuthProvider = ({ children }) => {
   const resendVerificationCode = async (email) => {
     try {
       const data = await resendCodeAPI(email);
-      console.log("✅ Código reenviado a:", email);
+      //console.log("✅ Código reenviado a:", email);
       return data;
     } catch (error) {
       console.error("Error reenviando código:", error);
