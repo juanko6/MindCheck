@@ -7,7 +7,7 @@ import Link from "next/link";
 import Swal from 'sweetalert2';
 import CircularLoader from "@/components/common/CircularLoader";
 
-export default function RegisterPage() {
+export default function RegisterPage({ serverAllowedDomains }) {
   const { register } = useAuth();  // ✅ Usar desde contexto
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,7 +15,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   
-  const allowedDomains = ["gcloud.ua.es", "uceva.edu.co"];
+  const allowedDomains = serverAllowedDomains || ["gcloud.ua.es", "uceva.edu.co"];
 
   function isInstitutionalEmail(email) {
     const domain = email.split("@")[1];
@@ -31,7 +31,7 @@ export default function RegisterPage() {
       Swal.fire({
         icon: "error",
         title: "Email no válido",
-        text: "Debes usar un correo institucional (@gcloud.ua.es o @uceva.edu.co)",
+        text: `Debes usar un correo institucional (@${allowedDomains.join(" o @")})`,
       });
       return;
     }
@@ -144,4 +144,22 @@ export default function RegisterPage() {
       </div>
     </>
   );
+}
+
+export async function getServerSideProps() {
+  // El código aquí corre solo en el servidor.
+  // Lee directamente el .env (la misma variable que usa tu backend)
+  const rawDomains = process.env.ALLOWED_EMAIL_DOMAINS || "";
+  
+  // Convertimos el string separado por comas en una lista limpia
+  const allowedDomainsList = rawDomains
+    .split(",")
+    .map(d => d.trim())
+    .filter(Boolean);
+
+  return {
+    props: {
+      serverAllowedDomains: allowedDomainsList
+    }
+  };
 }
